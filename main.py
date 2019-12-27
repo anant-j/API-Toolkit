@@ -2,11 +2,12 @@
 
 from flask import Flask, request,redirect,send_from_directory
 from flask_cors import CORS
-from firebase_admin import credentials, firestore, initialize_app
 from twilio.twiml.messaging_response import MessagingResponse
 import os
 import send_sms
 import pushbullet
+import firebase
+db=firebase.database()
 
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
@@ -15,11 +16,6 @@ Statuspage = "https://www.anant-j.com/api_status.html"
 # Initialize Flask App
 app = Flask(__name__)
 cors = CORS(app)
-
-# Initialize Firestore DB
-cred = credentials.Certificate('secrets/firebase_keys.json')
-default_app = initialize_app(cred)
-db = firestore.client()
 
 # Basic API Route
 @app.route('/')
