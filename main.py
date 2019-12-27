@@ -118,6 +118,23 @@ def e500(e):
 def e404(e):  
   return redirect(Fallback, code=302)
 
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+@app.route('/shutdown', methods=['GET'])
+def shutdown():
+    AuthCode = request.args.get('auth')
+    if (AuthCode=="AnantJain"):
+      shutdown_server()
+      return 'Server shutting down...'
+    else:
+      return ("Unauthorized User",401)
+
 #Run App
 if __name__ == '__main__':
     app.run(threaded=True, host='0.0.0.0', port=8080)
+    # from os import system #For force kill
+    # system("pkill -9 python")
