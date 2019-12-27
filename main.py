@@ -64,7 +64,7 @@ def add():
     else: #If user is unauthorized to call the api
       return ("Unauthorized User",401)
 
-#Route to Delete All Pushbullet Notifications
+#Route to Delete All Pushbullet Notifications. # Route to Shut Down API. Uses 256-bit key encryption.
 @app.route('/pb', methods=['GET'])
 def pbdel():
   AuthCode = request.args.get('auth')
@@ -73,6 +73,7 @@ def pbdel():
   else:
     return ("Unauthorized User",401)
 
+# Route for SMS. Uses Twilio API
 @app.route("/sms", methods=["POST"])
 def sms_reply():
     location = request.values.get('Body', None)
@@ -84,17 +85,8 @@ def sms_reply():
       return ("SMS Message Sent", 200)
     except Exception as e:
       return ("An Error Occured while sending SMS", e)
-  
 
-@app.errorhandler(500)
-def e500(e):  
-  return ("Internal Server Error", 500)
-
-# If user enter wrong api link -> Redirect to main website
-@app.errorhandler(404)
-def e404(e):  
-  return redirect(Fallback, code=302)
-
+# Route to Shut Down API. Uses 256-bit key encryption.
 @app.route('/shutdown', methods=['GET'])
 def shut_down():
     AuthCode = request.args.get('auth')
@@ -104,8 +96,16 @@ def shut_down():
     else:
       return ("Unauthorized User",401)
 
+# Handle Internal Server Errors
+@app.errorhandler(500)
+def e500(e):  
+  return ("Internal Server Error", 500)
+
+# If user enters wrong api link -> Redirect to main website
+@app.errorhandler(404)
+def e404(e):  
+  return redirect(Fallback, code=302)
+
 #Run App
 if __name__ == '__main__':
     app.run(threaded=True, host='0.0.0.0', port=8080)
-    # from os import system #For force kill
-    # system("pkill -9 python")
