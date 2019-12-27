@@ -4,16 +4,10 @@ from flask import Flask, request,redirect,send_from_directory
 from flask_cors import CORS
 from firebase_admin import credentials, firestore, initialize_app
 from twilio.twiml.messaging_response import MessagingResponse
-import requests,json
 import os
 import send_sms
+import pushbullet
 
-with open('secrets/pushbullet_keys.json') as f:
-    pbkeys = json.load(f)
-
-
-PBKEY=pbkeys['PBKEY']
-DEVID=pbkeys['DEVID']
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
 
@@ -56,7 +50,7 @@ def add():
       Fid=Known_Users[Fid]
     else:
       if(req_data['Host']=="www.anant-j.com"):
-        pbsend(req_data) # Send Notification Function Call
+        pushbullet.send(req_data) # Send Notification Function Call
     if(req_data['Host']=="www.anant-j.com"): #Hostname Verification to prevent spoofing
       try:
         db.collection(Page).document("UID: "+Fid).collection("IP: "+Ip).document(Time).set(req_data) #Add data to Firebase Firestore
@@ -66,38 +60,10 @@ def add():
     else: #If user is unauthorized to call the api
       return ("Unauthorized User",401)
 
-def pbsend(req): #Function to send notification
-  url = 'https://api.pushbullet.com/v2/pushes'
-  content = {
-  "body":"Carrier: " + req["Carrier"] + "\nOS: " + req["Operating System"]+ "\nBrowser: " + req["Browser"] + "\nDate-Time: " + req["Date & Time"] + "\nIP: " + req["Ip Address"],
-  "title": "Someone from " + req["City"] + ", " + req["Country"] + " visited your Website @" + req["Page"],
-  "device_iden": DEVID,
-  "type":"note"}
-  headers = {'Access-Token': PBKEY,'content-type': 'application/json'}
-  try:
-    requests.post(url, data=json.dumps(content), headers=headers)
-  except Exception as e:
-    return (":( An error occurred while sending data to Pushbullet:",{e})
-
 #Route to Delete All Pushbullet Notifications
 @app.route('/pb', methods=['GET'])
 def pbdel():
-  AuthCode = request.args.get('auth')
-  url="https://api.pushbullet.com/v2/pushes"
-  headers = {'Access-Token': PBKEY}
-  if(AuthCode=="AnantJain"):
-    try:
-      requests.delete(url, headers=headers)
-      return ("Deleted All Messages on Pushbullet",200)
-    except Exception as e:
-      return (":( An error occurred while deleting data from Pushbullet:",{e})
-  else:
-    return ("Unauthorized User",401)
-
-# To list all user devices
-  # headers = {'Access-Token': PBKEY}
-  # s=requests.get('https://api.pushbullet.com/v2/devices',headers=headers)
-  # print(s.json())
+  pushbullet.delete(request.args.get('auth'))
 
 @app.route("/sms", methods=["GET", "POST"])
 def sms_reply():
