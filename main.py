@@ -97,6 +97,15 @@ def pbdel():
   # s=requests.get('https://api.pushbullet.com/v2/devices',headers=headers)
   # print(s.json())
 
+@app.route("/sms", methods=["GET", "POST"])
+def sms_reply():
+    location = request.values.get('Body', None)
+    contact = request.values.get('From', None)
+    res = send_sms.send_sms(location, contact)
+    resp = MessagingResponse()
+    resp.message(res)
+    return str(resp)
+
 @app.errorhandler(500)
 def e500(e):  
   return ("Internal Server Error", 500)
