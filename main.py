@@ -11,6 +11,7 @@ import pushbullet
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
 Statuspage = "https://www.anant-j.com/api_status.html"
+Authorized_Host = "www.anant-j.com" 
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -29,8 +30,8 @@ def redirected():
 #Load Favicon
 @app.route('/favicon.ico')
 def favicon():
-  return send_from_directory(os.path.join(app.root_path, 'static'),
-                          'favicon.ico',mimetype='image/vnd.microsoft.icon')
+  return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico',mimetype='image/vnd.microsoft.icon')
+
 # Health Check Route
 @app.route('/status')
 def health():
@@ -50,9 +51,9 @@ def add():
     if(Fid in Known_Users):
       Fid=Known_Users[Fid]
     else:
-      if(req_data['Host']=="www.anant-j.com"):
+      if(req_data['Host']==Authorized_Host):
         pushbullet.send(req_data) # Send Notification Function Call
-    if(req_data['Host']=="www.anant-j.com"): #Hostname Verification to prevent spoofing
+    if(req_data['Host']==Authorized_Host): # Hostname Verification to prevent spoofing
       try:
         db.collection(Page).document("UID: "+Fid).collection("IP: "+Ip).document(Time).set(req_data) #Add data to Firebase Firestore
         return ("Sent", 200) 
