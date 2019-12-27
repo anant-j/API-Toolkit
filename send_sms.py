@@ -7,14 +7,14 @@ with open('twilio_keys.json') as f:
 
 def send_sms(location, contact):
     
-    lst = []
+    # lst = []
     
     account_sid = tw_keys['MY_ACCOUNT_SID']
     auth_token = tw_keys['MY_AUTH_TOKEN']
     
-    lst = ["Some", "Data"]
-    items = "\n".join(lst)
-
+    # lst = ["Some", "Data"]
+    # items = "\n".join(lst)
+    items=location
     client = Client(account_sid, auth_token)
     client.messages.create(
             to = contact,

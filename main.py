@@ -3,8 +3,10 @@
 from flask import Flask, request,redirect,send_from_directory
 from flask_cors import CORS
 from firebase_admin import credentials, firestore, initialize_app
+from twilio.twiml.messaging_response import MessagingResponse
 import requests,json
 import os
+import send_sms
 
 with open('pushbullet_keys.json') as f:
     pbkeys = json.load(f)
@@ -104,6 +106,7 @@ def sms_reply():
     res = send_sms.send_sms(location, contact)
     resp = MessagingResponse()
     resp.message(res)
+    print("Message received from: " + contact)
     return str(resp)
 
 @app.errorhandler(500)
