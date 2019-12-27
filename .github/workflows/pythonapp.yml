@@ -13,6 +13,15 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
+
+    - name: Cache
+      uses: actions/cache@v1.0.3
+      with:
+      # A directory to store and save the cache
+        path: .github/cache
+        # An explicit key for restoring and saving the cache
+        key: fTHJeFY0EB
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -27,10 +36,3 @@ jobs:
     - name: Pyflakes Syntax Checker
       uses: lgeiger/pyflakes-action@v1.0.1
     
-    - name: Cache
-      uses: actions/cache@v1.0.3
-      with:
-      # A directory to store and save the cache
-        path: API-Toolkit/.github/cache
-        # An explicit key for restoring and saving the cache
-        key: fTHJeFY0EB
