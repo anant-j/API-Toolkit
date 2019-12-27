@@ -4,18 +4,15 @@ from flask import Flask, request,redirect,send_from_directory
 from flask_cors import CORS
 from firebase_admin import credentials, firestore, initialize_app
 from twilio.twiml.messaging_response import MessagingResponse
-import requests,json
 import os
 import send_sms
+import pushbullet
 
-with open('secrets/pushbullet_keys.json') as f:
-    pbkeys = json.load(f)
-
-
-PBKEY=pbkeys['PBKEY']
-DEVID=pbkeys['DEVID']
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
+Statuspage = "https://www.anant-j.com/api_status.html"
+Auth_Token = "QBLHnUhSdCzrh1DKXYDtR77gMsq4y6Ev" 
+Auth_Host = "www.anant-j.com"
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -34,12 +31,12 @@ def redirected():
 #Load Favicon
 @app.route('/favicon.ico')
 def favicon():
-  return send_from_directory(os.path.join(app.root_path, 'static'),
-                          'favicon.ico',mimetype='image/vnd.microsoft.icon')
+  return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico',mimetype='image/vnd.microsoft.icon')
+
 # Health Check Route
 @app.route('/status')
 def health():
-  return redirect("https://www.anant-j.com/api_status.html", code=302)
+  return redirect(Statuspage, code=302)
 
 # Core API to Add Data to Firestore + Push messages via Pushbullet 
 @app.route('/api', methods=['POST']) #GET requests will be blocked
@@ -55,9 +52,9 @@ def add():
     if(Fid in Known_Users):
       Fid=Known_Users[Fid]
     else:
-      if(req_data['Host']=="www.anant-j.com"):
-        pbsend(req_data) # Send Notification Function Call
-    if(req_data['Host']=="www.anant-j.com"): #Hostname Verification to prevent spoofing
+      if(req_data['Host']==Auth_Host):
+        pushbullet.send(req_data) # Send Notification Function Call
+    if(req_data['Host']==Auth_Host): # Hostname Verification to prevent spoofing
       try:
         db.collection(Page).document("UID: "+Fid).collection("IP: "+Ip).document(Time).set(req_data) #Add data to Firebase Firestore
         return ("Sent", 200) 
@@ -66,75 +63,55 @@ def add():
     else: #If user is unauthorized to call the api
       return ("Unauthorized User",401)
 
-def pbsend(req): #Function to send notification
-  url = 'https://api.pushbullet.com/v2/pushes'
-  content = {
-  "body":"Carrier: " + req["Carrier"] + "\nOS: " + req["Operating System"]+ "\nBrowser: " + req["Browser"] + "\nDate-Time: " + req["Date & Time"] + "\nIP: " + req["Ip Address"],
-  "title": "Someone from " + req["City"] + ", " + req["Country"] + " visited your Website @" + req["Page"],
-  "device_iden": DEVID,
-  "type":"note"}
-  headers = {'Access-Token': PBKEY,'content-type': 'application/json'}
-  try:
-    requests.post(url, data=json.dumps(content), headers=headers)
-  except Exception as e:
-    return (":( An error occurred while sending data to Pushbullet:",{e})
-
-#Route to Delete All Pushbullet Notifications
-@app.route('/pb', methods=['GET'])
-def pbdel():
+#Route to Delete All Pushbullet Notifications. # Route to Shut Down API. Uses 256-bit key encryption.
+@app.route('/pbdel', methods=['GET'])
+def pbdelete():
   AuthCode = request.args.get('auth')
-  url="https://api.pushbullet.com/v2/pushes"
-  headers = {'Access-Token': PBKEY}
-  if(AuthCode=="AnantJain"):
-    try:
-      requests.delete(url, headers=headers)
-      return ("Deleted All Messages on Pushbullet",200)
-    except Exception as e:
-      return (":( An error occurred while deleting data from Pushbullet:",{e})
+  if(AuthCode==Auth_Token):
+    return(pushbullet.delete())
   else:
     return ("Unauthorized User",401)
 
-# To list all user devices
-  # headers = {'Access-Token': PBKEY}
-  # s=requests.get('https://api.pushbullet.com/v2/devices',headers=headers)
-  # print(s.json())
-
-@app.route("/sms", methods=["GET", "POST"])
+# Route for SMS. Uses Twilio API
+@app.route("/sms", methods=["POST"])
 def sms_reply():
     location = request.values.get('Body', None)
     contact = request.values.get('From', None)
-    res = send_sms.send_sms(location, contact)
-    resp = MessagingResponse()
-    resp.message(res)
-    print("Message received from: " + contact)
-    return str(resp)
+    try:
+      res = send_sms.send_sms(location, contact)
+      resp = MessagingResponse()
+      resp.message(res)
+      return ("SMS Message Sent", 200)
+    except Exception as e:
+      return ("An Error Occured while sending SMS", e)
 
+# Route to Shut Down API. Uses 256-bit key encryption.
+@app.route('/shutdown', methods=['GET'])
+def shut_down():
+    AuthCode = request.args.get('auth')
+    if (AuthCode==Auth_Token):
+      try:
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is not None:
+          func()
+          return 'Server shut down.'
+        else:
+          return("Server could not be shut down.")
+      except Exception as e:
+        return ("An error Occured while shutting down", e)
+    else:
+      return ("Unauthorized User",401)
+ 
+# Handle Internal Server Errors
 @app.errorhandler(500)
 def e500(e):  
   return ("Internal Server Error", 500)
 
-# If user enter wrong api link -> Redirect to main website
+# If user enters wrong api link -> Redirect to main website
 @app.errorhandler(404)
 def e404(e):  
   return redirect(Fallback, code=302)
 
-def shutdown_server():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-
-@app.route('/shutdown', methods=['GET'])
-def shutdown():
-    AuthCode = request.args.get('auth')
-    if (AuthCode=="AnantJain"):
-      shutdown_server()
-      return 'Server shut down...'
-    else:
-      return ("Unauthorized User",401)
-
 #Run App
 if __name__ == '__main__':
     app.run(threaded=True, host='0.0.0.0', port=8080)
-    # from os import system #For force kill
-    # system("pkill -9 python")
