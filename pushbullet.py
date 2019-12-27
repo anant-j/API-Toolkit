@@ -23,14 +23,11 @@ def send(req):
 def delete(AuthCode):
     url="https://api.pushbullet.com/v2/pushes"
     headers = {'Access-Token': PBKEY}
-    if(AuthCode=="AnantJain"):
-        try:
-            requests.delete(url, headers=headers)
-            return ("Deleted All Messages on Pushbullet",200)
-        except Exception as e:
-            return (":( An error occurred while deleting data from Pushbullet:",{e})
-    else:
-        return ("Unauthorized User",401)
+    try:
+        requests.delete(url, headers=headers)
+        return ("Deleted All Messages on Pushbullet",200)
+    except Exception as e:
+        return (":( An error occurred while deleting data from Pushbullet:",{e})
 
     # # To list all user devices
     # headers = {'Access-Token': PBKEY}

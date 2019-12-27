@@ -11,7 +11,8 @@ import pushbullet
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
 Statuspage = "https://www.anant-j.com/api_status.html"
-Authorized_Host = "www.anant-j.com" 
+Auth_Token = "QBLHnUhSdCzrh1DKXYDtR77gMsq4y6Ev" 
+Auth_Host = "www.anant-j.com"
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -51,9 +52,9 @@ def add():
     if(Fid in Known_Users):
       Fid=Known_Users[Fid]
     else:
-      if(req_data['Host']==Authorized_Host):
+      if(req_data['Host']==Auth_Token):
         pushbullet.send(req_data) # Send Notification Function Call
-    if(req_data['Host']==Authorized_Host): # Hostname Verification to prevent spoofing
+    if(req_data['Host']==Auth_Token): # Hostname Verification to prevent spoofing
       try:
         db.collection(Page).document("UID: "+Fid).collection("IP: "+Ip).document(Time).set(req_data) #Add data to Firebase Firestore
         return ("Sent", 200) 
@@ -65,7 +66,11 @@ def add():
 #Route to Delete All Pushbullet Notifications
 @app.route('/pb', methods=['GET'])
 def pbdel():
-  pushbullet.delete(request.args.get('auth'))
+  AuthCode = request.args.get('auth')
+  if(AuthCode==Auth_Host):
+    pushbullet.delete()
+  else:
+    return ("Unauthorized User",401)
 
 @app.route("/sms", methods=["GET", "POST"])
 def sms_reply():
@@ -95,7 +100,7 @@ def shutdown_server():
 @app.route('/shutdown', methods=['GET'])
 def shutdown():
     AuthCode = request.args.get('auth')
-    if (AuthCode=="AnantJain"):
+    if (AuthCode==Auth_Host):
       shutdown_server()
       return 'Server shut down...'
     else:
