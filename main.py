@@ -14,7 +14,7 @@ with open('pushbullet_keys.json') as f:
 
 PBKEY=pbkeys['PBKEY']
 DEVID=pbkeys['DEVID']
-Known_Users = dict({"1479666974": 'ANANT-WORK', "740348567": 'ANANT-PC', "2668425016":'ANANT-PHONE'})  #Users whose Unique Id is known
+Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
 
 # Initialize Flask App
