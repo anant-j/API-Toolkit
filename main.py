@@ -10,6 +10,7 @@ import pushbullet
 
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
+Statuspage = "https://www.anant-j.com/api_status.html"
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -33,7 +34,7 @@ def favicon():
 # Health Check Route
 @app.route('/status')
 def health():
-  return redirect("https://www.anant-j.com/api_status.html", code=302)
+  return redirect(Statuspage, code=302)
 
 # Core API to Add Data to Firestore + Push messages via Pushbullet 
 @app.route('/api', methods=['POST']) #GET requests will be blocked
