@@ -7,6 +7,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 import os
 import send_sms
 import pushbullet
+import shutdown
 
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
@@ -91,17 +92,11 @@ def e500(e):
 def e404(e):  
   return redirect(Fallback, code=302)
 
-def shutdown_server():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-
 @app.route('/shutdown', methods=['GET'])
-def shutdown():
+def shut_down():
     AuthCode = request.args.get('auth')
     if (AuthCode==Auth_Host):
-      shutdown_server()
+      shutdown.server_down()
       return 'Server shut down...'
     else:
       return ("Unauthorized User",401)
