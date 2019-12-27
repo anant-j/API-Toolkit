@@ -2,7 +2,7 @@ from twilio.rest import Client
 import json
 import maps_api
 
-with open('twilio_keys.json') as f:
+with open('secrets/twilio_keys.json') as f:
     tw_keys = json.load(f)
 
 

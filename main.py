@@ -8,7 +8,7 @@ import requests,json
 import os
 import send_sms
 
-with open('pushbullet_keys.json') as f:
+with open('secrets/pushbullet_keys.json') as f:
     pbkeys = json.load(f)
 
 
@@ -22,7 +22,7 @@ app = Flask(__name__)
 cors = CORS(app)
 
 # Initialize Firestore DB
-cred = credentials.Certificate('firebase_keys.json')
+cred = credentials.Certificate('secrets/firebase_keys.json')
 default_app = initialize_app(cred)
 db = firestore.client()
 

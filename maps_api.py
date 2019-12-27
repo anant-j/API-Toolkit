@@ -2,7 +2,7 @@ import requests
 import time
 import json
 
-with open('maps_keys.json') as f:
+with open('secrets/maps_keys.json') as f:
     map_keys = json.load(f)
 
 def travel_time(from_add, to_add):
