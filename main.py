@@ -39,7 +39,7 @@ def favicon():
 # Health Check Route
 @app.route('/status')
 def health():
-    return ("Up",200)
+  return redirect("https://www.anant-j.com/api_status.html", code=200)
 
 # Core API to Add Data to Firestore + Push messages via Pushbullet 
 @app.route('/api', methods=['POST']) #GET requests will be blocked
