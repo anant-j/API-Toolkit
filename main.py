@@ -129,7 +129,7 @@ def shutdown():
     AuthCode = request.args.get('auth')
     if (AuthCode=="AnantJain"):
       shutdown_server()
-      return 'Server shutting down...'
+      return 'Server shut down...'
     else:
       return ("Unauthorized User",401)
 
