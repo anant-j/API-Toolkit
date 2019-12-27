@@ -20,7 +20,7 @@ def send(req):
   except Exception as e:
     return (":( An error occurred while sending data to Pushbullet:",{e})
 
-def delete(AuthCode):
+def delete():
     url="https://api.pushbullet.com/v2/pushes"
     headers = {'Access-Token': PBKEY}
     try:

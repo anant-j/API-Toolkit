@@ -7,7 +7,6 @@ from twilio.twiml.messaging_response import MessagingResponse
 import os
 import send_sms
 import pushbullet
-import shutdown
 
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
@@ -53,9 +52,9 @@ def add():
     if(Fid in Known_Users):
       Fid=Known_Users[Fid]
     else:
-      if(req_data['Host']==Auth_Token):
+      if(req_data['Host']==Auth_Host):
         pushbullet.send(req_data) # Send Notification Function Call
-    if(req_data['Host']==Auth_Token): # Hostname Verification to prevent spoofing
+    if(req_data['Host']==Auth_Host): # Hostname Verification to prevent spoofing
       try:
         db.collection(Page).document("UID: "+Fid).collection("IP: "+Ip).document(Time).set(req_data) #Add data to Firebase Firestore
         return ("Sent", 200) 
@@ -65,11 +64,11 @@ def add():
       return ("Unauthorized User",401)
 
 #Route to Delete All Pushbullet Notifications. # Route to Shut Down API. Uses 256-bit key encryption.
-@app.route('/pb', methods=['GET'])
-def pbdel():
+@app.route('/pbdel', methods=['GET'])
+def pbdelete():
   AuthCode = request.args.get('auth')
-  if(AuthCode==Auth_Host):
-    pushbullet.delete()
+  if(AuthCode==Auth_Token):
+    return(pushbullet.delete())
   else:
     return ("Unauthorized User",401)
 
@@ -90,12 +89,19 @@ def sms_reply():
 @app.route('/shutdown', methods=['GET'])
 def shut_down():
     AuthCode = request.args.get('auth')
-    if (AuthCode==Auth_Host):
-      shutdown.server_down()
-      return 'Server shut down...'
+    if (AuthCode==Auth_Token):
+      try:
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is not None:
+          func()
+          return 'Server shut down.'
+        else:
+          return("Server could not be shut down.")
+      except Exception as e:
+        return ("An error Occured while shutting down", e)
     else:
       return ("Unauthorized User",401)
-
+ 
 # Handle Internal Server Errors
 @app.errorhandler(500)
 def e500(e):  
