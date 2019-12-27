@@ -73,15 +73,18 @@ def pbdel():
   else:
     return ("Unauthorized User",401)
 
-@app.route("/sms", methods=["GET", "POST"])
+@app.route("/sms", methods=["POST"])
 def sms_reply():
     location = request.values.get('Body', None)
     contact = request.values.get('From', None)
-    res = send_sms.send_sms(location, contact)
-    resp = MessagingResponse()
-    resp.message(res)
-    print("Message received from: " + contact)
-    return str(resp)
+    try:
+      res = send_sms.send_sms(location, contact)
+      resp = MessagingResponse()
+      resp.message(res)
+      return ("SMS Message Sent", 200)
+    except Exception as e:
+      return ("An Error Occured while sending SMS", e)
+  
 
 @app.errorhandler(500)
 def e500(e):  
