@@ -8,8 +8,8 @@ with open('secrets/twilio_keys.json') as f:
 def send_sms(message_content, contact):
     account_sid = tw_keys['MY_ACCOUNT_SID']
     auth_token = tw_keys['MY_AUTH_TOKEN']
-    if (message_content.lower()=="help"):
-        response ="Thank you for using this service. \n Please format your message in the following format: \n 'From:<Origin Location>, To:<Destination Location>'"        
+    if (message_content.lower().strip()=="usage"):
+        response ="\nThank you for using this service. \nPlease format your message in the following format: \n'From: Origin Location - To: Destination Location' \nThank you"        
     else:
         try:
             locations = message_decoder(message_content)
@@ -19,7 +19,7 @@ def send_sms(message_content, contact):
             response = "The distance is: "+distance + \
                 ". The travel time with traffic right now is: "+traffictime
         except:
-            response = "Please format your message correctly. Type HELP for more info!"
+            response = "Please format your message correctly. Type usage for more info!"
     client = Client(account_sid, auth_token)
     client.messages.create(
         to=contact,
