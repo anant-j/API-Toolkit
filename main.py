@@ -5,7 +5,7 @@ from flask_cors import CORS
 from firebase_admin import credentials, firestore, initialize_app
 from twilio.twiml.messaging_response import MessagingResponse
 import os
-import send_sms
+import sms_handler
 import pushbullet
 
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
@@ -78,7 +78,7 @@ def sms_reply():
     message_content = request.values.get('Body', None)
     contact = request.values.get('From', None)
     try:
-      res = send_sms.send_sms(message_content, contact)
+      res = sms_handler.send_sms(message_content, contact)
       resp = MessagingResponse()
       resp.message(res)
       return ("SMS Message Sent", 200)
