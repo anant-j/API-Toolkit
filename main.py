@@ -75,10 +75,10 @@ def pbdelete():
 # Route for SMS. Uses Twilio API
 @app.route("/sms", methods=["POST"])
 def sms_reply():
-    location = request.values.get('Body', None)
+    message_content = request.values.get('Body', None)
     contact = request.values.get('From', None)
     try:
-      res = send_sms.send_sms(location, contact)
+      res = send_sms.send_sms(message_content, contact)
       resp = MessagingResponse()
       resp.message(res)
       return ("SMS Message Sent", 200)
