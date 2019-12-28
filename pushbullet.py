@@ -1,11 +1,9 @@
 import json
 import requests
-
 with open('secrets/pushbullet_keys.json') as f:
     pbkeys = json.load(f)
 PBKEY=pbkeys['PBKEY']
 DEVID=pbkeys['DEVID']
-
 
 def send(req):
   url = 'https://api.pushbullet.com/v2/pushes'

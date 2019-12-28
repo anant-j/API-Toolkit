@@ -18,7 +18,7 @@
 ```
 <hr/>
 
->2) maps_keys.json
+>2) distance_matrix_keys.json
 ```
 {
     "API_key": ""
