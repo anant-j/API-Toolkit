@@ -20,7 +20,7 @@ def send_sms(message_content, contact):
     client.messages.create(
         to=contact,
         from_=tw_keys['MY_TWILIO_NUMBER'],
-        body=item
+        body=response
     )
 
 
