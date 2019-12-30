@@ -7,6 +7,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 import os
 import sms_handler
 import pushbullet
+import git
 
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
@@ -86,6 +87,18 @@ def sms_reply():
     except Exception as e:
       return ("An Error Occured while sending SMS", e)
 
+# CI With GitHub
+@app.route('/update_server', methods=['POST'])
+def webhook():
+    if request.method == 'POST':
+        repo = git.Repo(my_directory)
+        origin = repo.remotes.origin
+        repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master).checkout()
+        origin.pull()
+        return 'Updated PythonAnywhere successfully', 200
+    else:
+        return 'Wrong event type', 400
+
 # Handle Internal Server Errors
 @app.errorhandler(500)
 def e500(e):
@@ -95,7 +108,3 @@ def e500(e):
 @app.errorhandler(404)
 def e404(e):
   return redirect(Fallback, code=302)
-
-#Run App
-if __name__ == '__main__':
-    app.run(threaded=True, host='0.0.0.0', port=8080)
