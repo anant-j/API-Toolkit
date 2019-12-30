@@ -93,10 +93,9 @@ def webhook():
     if request.method == 'POST':
         repo = git.Repo(my_directory)
         repo.git.reset('--hard')
-        # origin = repo.remotes.origin
+        origin = repo.remotes.origin
         # repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master).checkout()
-        # origin.pull()
-        repo.remotes.origin.pull()
+        origin.pull()
         return 'Updated PythonAnywhere successfully', 200
     else:
         return 'Wrong event type', 400
