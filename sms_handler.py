@@ -1,11 +1,13 @@
 from twilio.rest import Client
 import json
 import travel_time_api
-with open('secrets/twilio_keys.json') as f:
+import os
 from twilio.http.http_client import TwilioHttpClient
 
 proxy_client = TwilioHttpClient()
 proxy_client.session.proxies = {'https': os.environ['https_proxy']}
+my_directory = os.path.dirname(os.path.abspath(__file__))
+with open(my_directory+'/secrets/twilio_keys.json') as f:
     tw_keys = json.load(f)
 
 

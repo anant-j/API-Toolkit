@@ -13,13 +13,14 @@ Fallback = "https://www.anant-j.com" #Fallback original website
 Statuspage = "https://www.anant-j.com/api_status.html"
 Auth_Token = "QBLHnUhSdCzrh1DKXYDtR77gMsq4y6Ev"
 Auth_Host = "www.anant-j.com"
+my_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Initialize Flask App
 app = Flask(__name__)
 cors = CORS(app)
 
 # Initialize Firestore DB
-cred = credentials.Certificate('secrets/firebase_keys.json')
+cred = credentials.Certificate(my_directory+'/secrets/firebase_keys.json')
 default_app = initialize_app(cred)
 db = firestore.client()
 
