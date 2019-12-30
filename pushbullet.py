@@ -1,6 +1,9 @@
 import json
 import requests
-with open('secrets/pushbullet_keys.json') as f:
+import os
+
+my_directory = os.path.dirname(os.path.abspath(__file__))
+with open(my_directory+'/secrets/pushbullet_keys.json') as f:
     pbkeys = json.load(f)
 PBKEY=pbkeys['PBKEY']
 DEVID=pbkeys['DEVID']

@@ -1,7 +1,10 @@
 import requests
 import time
 import json
-with open('secrets/distance_matrix_keys.json') as f:
+import os
+
+my_directory = os.path.dirname(os.path.abspath(__file__))
+with open(my_directory+'/secrets/distance_matrix_keys.json') as f:
     api_keys = json.load(f)
 
 class TravelTime:
@@ -20,9 +23,9 @@ class TravelTime:
         self.current_time=time.strftime("%I:%M:%S")
         self.distance = result['rows'][0]['elements'][0]['distance']['text']
         self.traffic_time= result['rows'][0]['elements'][0]['duration_in_traffic']['text']
-        
+
     def print_distance(self):
         return self.distance
-    
+
     def print_traffictime(self):
         return self.traffic_time
