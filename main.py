@@ -11,7 +11,7 @@ import pushbullet
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC', "4069111623":'ANANT-PHONE'})  #Users whose Unique Id is known
 Fallback = "https://www.anant-j.com" #Fallback original website
 Statuspage = "https://www.anant-j.com/api_status.html"
-Auth_Token = "QBLHnUhSdCzrh1DKXYDtR77gMsq4y6Ev" 
+Auth_Token = "QBLHnUhSdCzrh1DKXYDtR77gMsq4y6Ev"
 Auth_Host = "www.anant-j.com"
 
 # Initialize Flask App
@@ -25,7 +25,7 @@ db = firestore.client()
 
 # Basic API Route
 @app.route('/')
-def redirected(): 
+def redirected():
   return redirect(Fallback, code=302)
 
 #Load Favicon
@@ -38,7 +38,7 @@ def favicon():
 def health():
   return redirect(Statuspage, code=302)
 
-# Core API to Add Data to Firestore + Push messages via Pushbullet 
+# Core API to Add Data to Firestore + Push messages via Pushbullet
 @app.route('/api', methods=['POST']) #GET requests will be blocked
 def add():
   # https://scotch.io/bar-talk/processing-incoming-request-data-in-flask
@@ -57,7 +57,7 @@ def add():
     if(req_data['Host']==Auth_Host): # Hostname Verification to prevent spoofing
       try:
         db.collection(Page).document("UID: "+Fid).collection("IP: "+Ip).document(Time).set(req_data) #Add data to Firebase Firestore
-        return ("Sent", 200) 
+        return ("Sent", 200)
       except Exception as e:
         return (":( An Error Occured while sending data to Firebase:",{e})
     else: #If user is unauthorized to call the api
@@ -84,15 +84,15 @@ def sms_reply():
       return ("SMS Message Sent", 200)
     except Exception as e:
       return ("An Error Occured while sending SMS", e)
- 
+
 # Handle Internal Server Errors
 @app.errorhandler(500)
-def e500(e):  
+def e500(e):
   return ("Internal Server Error", 500)
 
 # If user enters wrong api link -> Redirect to main website
 @app.errorhandler(404)
-def e404(e):  
+def e404(e):
   return redirect(Fallback, code=302)
 
 #Run App
