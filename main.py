@@ -84,23 +84,6 @@ def sms_reply():
       return ("SMS Message Sent", 200)
     except Exception as e:
       return ("An Error Occured while sending SMS", e)
-
-# Route to Shut Down API. Uses 256-bit key encryption.
-@app.route('/shutdown', methods=['GET'])
-def shut_down():
-    AuthCode = request.args.get('auth')
-    if (AuthCode==Auth_Token):
-      try:
-        func = request.environ.get('werkzeug.server.shutdown')
-        if func is not None:
-          func()
-          return 'Server shut down.'
-        else:
-          return("Server could not be shut down.")
-      except Exception as e:
-        return ("An error Occured while shutting down", e)
-    else:
-      return ("Unauthorized User",401)
  
 # Handle Internal Server Errors
 @app.errorhandler(500)
