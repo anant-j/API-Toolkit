@@ -1,6 +1,6 @@
 # https://cloud.google.com/community/tutorials/building-flask-api-with-cloud-firestore-and-deploying-to-cloud-run
 
-from flask import Flask, request, redirect, send_from_directory
+from flask import Flask, request, redirect, send_from_directory, abort
 from flask_cors import CORS
 from firebase_admin import credentials, firestore, initialize_app
 from twilio.twiml.messaging_response import MessagingResponse
@@ -8,6 +8,7 @@ import os
 import sms_handler
 import pushbullet
 import git
+import json
 
 Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC',
                     "4069111623": 'ANANT-PHONE'})  # Users whose Unique Id is known
@@ -92,15 +93,44 @@ def sms_reply():
 # CI with GitHub
 @app.route('/update_server', methods=['POST'])
 def webhook():
-    if request.method == 'POST':
+    if request.method != 'POST':
+        return 'Invalid method'
+    else:
+        abort_code = 418
+        # Do initial validations on required headers
+        if 'X-Github-Event' not in request.headers:
+            abort(abort_code)
+        if 'X-Github-Delivery' not in request.headers:
+            abort(abort_code)
+        if 'X-Hub-Signature' not in request.headers:
+            abort(abort_code)
+        if not request.is_json:
+            abort(abort_code)
+        if 'User-Agent' not in request.headers:
+            abort(abort_code)
+        ua = request.headers.get('User-Agent')
+        if not ua.startswith('GitHub-Hookshot/'):
+            abort(abort_code)
+
+        event = request.headers.get('X-GitHub-Event')
+        if event == "ping":
+            return json.dumps({'msg': 'Ping Successful!'})
+        if event != "push":
+            return json.dumps({'msg': "Wrong event type"})
+
+        payload = request.get_json()
+        if payload is None:
+            print('Deploy payload is empty: {payload}'.format(
+                payload=payload))
+            abort(abort_code)
+
+        if payload['ref'] != 'refs/heads/master':
+            return json.dumps({'msg': 'Not master; ignoring'})
+
         repo = git.Repo(my_directory)
         repo.git.reset('--hard')
         origin = repo.remotes.origin
-        # repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master).checkout()
         origin.pull()
-        return 'Updated PythonAnywhere successfully', 200
-    else:
-        return 'Wrong event type', 400
 
 # Handle Internal Server Errors
 @app.errorhandler(500)
