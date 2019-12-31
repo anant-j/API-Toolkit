@@ -1,5 +1,7 @@
 import hmac
 import hashlib
+import os
+import json
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory+'/secrets/github_webook.json') as f:
     github_key = json.load(f)
