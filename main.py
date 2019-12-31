@@ -122,13 +122,13 @@ def webhook():
       if(my_directory=="/home/stagingapi/mysite"):
         if payload['ref'] == 'refs/heads/master':
             return json.dumps({'msg': 'Master; ignoring'})
-
-      elif(my_directory=="/home/anantj24/mysite"):
+      if(my_directory!="/home/stagingapi/mysite"):
         if payload['ref'] != 'refs/heads/master':
             return json.dumps({'msg': 'Not master; ignoring'})
-
+            
       repo = git.Repo(my_directory)
-      repo.git.reset('--hard')
+      branch=str(payload['ref'][11:])
+      repo.git.reset('--hard', branch)
       origin = repo.remotes.origin
       # repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master).checkout()
       origin.pull()
