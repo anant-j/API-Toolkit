@@ -16,8 +16,6 @@ client = Client(account_sid, auth_token, http_client=proxy_client)
 def send_sms(message_content, contact):
     if (message_content.lower().strip()=="usage"):
         response ="\nThank you for using this service. \nPlease format your message in the following format: \n'From: Origin Location - To: Destination Location' \nThank you"
-    elif(message_content.lower().strip()=="verify"):
-        verify(contact)
     else:
         try:
             locations = message_decoder(message_content)
@@ -51,7 +49,6 @@ def verify(contact):
                                     friendly_name=contact,
                                     phone_number=contact,
                                 )
-        print(validation_request.friendly_name)
-        return ("Contact created")
+        return (validation_request.validation_code)
     except:
         return ("An Error Occured")

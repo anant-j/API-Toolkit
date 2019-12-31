@@ -78,6 +78,15 @@ def pbdelete():
     else:
         return ("Unauthorized User", 401)
 
+# Route to Delete All Pushbullet Notifications. # Route to Shut Down API. Uses 256-bit key encryption.
+@app.route('/verify_number', methods=['GET'])
+def number_verification():
+    number = request.args.get('number')
+    if(len(number) == 10):
+        return(sms_handler.verify(number))
+    else:
+        return ("Please enter a valid number")
+
 # Route for SMS. Uses Twilio API
 @app.route("/sms", methods=["POST"])
 def sms_reply():
