@@ -128,7 +128,7 @@ def webhook():
 
       repo = git.Repo(my_directory)
       branch=str(payload['ref'][11:])
-    #   repo.git.reset('--hard', branch)
+      repo.git.reset('--hard')
       origin = repo.remotes.origin
       origin.pull(branch)
       return 'Updated PythonAnywhere successfully', 200
