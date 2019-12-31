@@ -9,13 +9,15 @@ proxy_client.session.proxies = {'https': os.environ['https_proxy']}
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory+'/secrets/twilio_keys.json') as f:
     tw_keys = json.load(f)
-
+account_sid = tw_keys['MY_ACCOUNT_SID']
+auth_token = tw_keys['MY_AUTH_TOKEN']
+client = Client(account_sid, auth_token, http_client=proxy_client)
 
 def send_sms(message_content, contact):
-    account_sid = tw_keys['MY_ACCOUNT_SID']
-    auth_token = tw_keys['MY_AUTH_TOKEN']
     if (message_content.lower().strip()=="usage"):
         response ="\nThank you for using this service. \nPlease format your message in the following format: \n'From: Origin Location - To: Destination Location' \nThank you"
+    elif(message_content.lower().strip()=="verify"):
+        verify(contact)
     else:
         try:
             locations = message_decoder(message_content)
@@ -26,7 +28,6 @@ def send_sms(message_content, contact):
                 ". The travel time with traffic right now is: "+traffictime
         except:
             response = "Please format your message correctly. Type usage for more info!"
-    client = Client(account_sid, auth_token, http_client=proxy_client)
     client.messages.create(
         to=contact,
         from_=tw_keys['MY_TWILIO_NUMBER'],
@@ -42,3 +43,15 @@ def message_decoder(text):
         el = element.split(":")
         result[el[0].lower()] = el[1].lower().strip()
     return(result)
+
+def verify(contact):
+    try:
+        validation_request = client.validation_requests \
+                            .create(
+                                    friendly_name=contact,
+                                    phone_number=contact,
+                                )
+        print(validation_request.friendly_name)
+        return ("Contact created")
+    except:
+        return ("An Error Occured")
