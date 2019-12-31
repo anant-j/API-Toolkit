@@ -10,7 +10,7 @@ import pushbullet
 import github_verify
 import git
 import json
-import secrets.params as params
+import params
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
 Known_Users = params.Known_Users
