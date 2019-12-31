@@ -118,10 +118,7 @@ def webhook():
             return json.dumps({'msg': 'Ping Successful!'})
         if event != "push":
             return json.dumps({'msg': "Wrong event type"})
-
-        if(my_directory == "/home/stagingapi/mysite"):
-            if payload['ref'] == 'refs/heads/master':
-                return json.dumps({'msg': 'Master; ignoring'})
+            
         if(my_directory != "/home/stagingapi/mysite"):
             if payload['ref'] != 'refs/heads/master':
                 return json.dumps({'msg': 'Not master; ignoring'})
