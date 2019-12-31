@@ -82,7 +82,8 @@ def pbdelete():
 @app.route('/verify', methods=['GET'])
 def number_verification():
     number = request.args.get('number')
-    if(len(number) == 10):
+    AuthCode = request.args.get('auth')
+    if(len(number) == 10 and AuthCode == Auth_Token):
         return(sms_handler.verify(number))
     else:
         return ("Please enter a valid number")

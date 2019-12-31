@@ -54,9 +54,14 @@ def message_decoder(text):
     return(result)
 
 def verify(contact):
-    validation_request = client.validation_requests \
-                        .create(
-                                friendly_name=contact,
-                                phone_number=contact,
-                            )
-    return (validation_request)
+    try:
+        validation_request = client.validation_requests \
+                            .create(
+                                    friendly_name=contact,
+                                    phone_number=contact,
+                                )
+        return (validation_request.validation_code)
+    except Exception as e:
+        return(e)
+
+
