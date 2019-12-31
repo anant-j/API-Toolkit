@@ -93,40 +93,23 @@ def sms_reply():
 # CI with GitHub https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
 def webhook():
-    if request.method != 'POST':
-        return 'Invalid method'
+    if request.method == 'POST':
+      event = request.headers.get('X-GitHub-Event')
+      payload = request.get_json()
+      if event == "ping":
+        return json.dumps({'msg': 'Ping Successful!'})
+      if event != "push":
+        return json.dumps({'msg': "Wrong event type"})
+      if payload['ref'] != 'refs/heads/master':
+        return json.dumps({'msg': 'Not master; ignoring'})
+      repo = git.Repo(my_directory)
+      repo.git.reset('--hard')
+      origin = repo.remotes.origin
+      # repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master).checkout()
+      origin.pull()
+      return 'Updated PythonAnywhere successfully', 200
     else:
-        abort_code = 406
-        # Do initial validations on required headers
-        if 'X-Github-Event' not in request.headers:
-            abort(abort_code)
-        if 'X-Github-Delivery' not in request.headers:
-            abort(abort_code)
-        if 'X-Hub-Signature' not in request.headers:
-            abort(abort_code)
-        if not request.is_json:
-            abort(abort_code)
-        if 'User-Agent' not in request.headers:
-            abort(abort_code)
-        ua = request.headers.get('User-Agent')
-        if not ua.startswith('GitHub-Hookshot/'):
-            abort(abort_code)
-        event = request.headers.get('X-GitHub-Event')
-        if event == "ping":
-            return json.dumps({'msg': 'Ping Successful!'})
-        if event != "push":
-            return json.dumps({'msg': "Wrong event type"})
-        payload = request.get_json()
-        if payload is None:
-            print('Deploy payload is empty: {payload}'.format(
-                payload=payload))
-            abort(abort_code)
-        if payload['ref'] != 'refs/heads/master':
-            return json.dumps({'msg': 'Not master; ignoring'})
-        repo = git.Repo(my_directory)
-        repo.git.reset('--hard')
-        origin = repo.remotes.origin
-        origin.pull()
+        return 'Wrong event type', 400
 
 # Handle Internal Server Errors
 @app.errorhandler(500)
