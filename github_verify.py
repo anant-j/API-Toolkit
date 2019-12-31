@@ -3,7 +3,7 @@ import hashlib
 import os
 import json
 my_directory = os.path.dirname(os.path.abspath(__file__))
-with open(my_directory+'/secrets/github_webook.json') as f:
+with open(my_directory+'/secrets/github_webhook.json') as f:
     github_key = json.load(f)
 webhook_key=github_key['key']
 

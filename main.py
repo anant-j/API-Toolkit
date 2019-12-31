@@ -10,14 +10,14 @@ import pushbullet
 import github_verify
 import git
 import json
-
-Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC',
-                    "4069111623": 'ANANT-PHONE'})  # Users whose Unique Id is known
-Fallback = "https://www.anant-j.com"  # Fallback original website
-Statuspage = "https://www.anant-j.com/api_status.html"
-Auth_Token = "QBLHnUhSdCzrh1DKXYDtR77gMsq4y2Ef"
-Auth_Host = "www.anant-j.com"
+from secrets import params
 my_directory = os.path.dirname(os.path.abspath(__file__))
+
+Known_Users = params.Known_Users
+Fallback = params.Fallback
+Statuspage = params.Statuspage
+Auth_Token = params.Auth_Token
+Auth_Host = params.Auth_Host
 
 # Initialize Flask App
 app = Flask(__name__)
