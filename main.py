@@ -7,6 +7,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 import os
 import sms_handler
 import pushbullet
+import github_verify
 import git
 import json
 
@@ -96,6 +97,10 @@ def webhook():
     if request.method == 'POST':
       event = request.headers.get('X-GitHub-Event')
       payload = request.get_json()
+      x_hub_signature = request.headers.get('X-Hub-Signature')
+      if not github_verify.is_valid_signature(x_hub_signature, request.data):
+        print('Deploy signature failed: {sig}'.format(sig=x_hub_signature))
+        abort(401)
       if event == "ping":
         return json.dumps({'msg': 'Ping Successful!'})
       if event != "push":
