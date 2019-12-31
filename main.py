@@ -122,16 +122,15 @@ def webhook():
       if(my_directory=="/home/stagingapi/mysite"):
         if payload['ref'] == 'refs/heads/master':
             return json.dumps({'msg': 'Master; ignoring'})
-
-      elif(my_directory=="/home/anantj24/mysite"):
+      if(my_directory!="/home/stagingapi/mysite"):
         if payload['ref'] != 'refs/heads/master':
             return json.dumps({'msg': 'Not master; ignoring'})
 
       repo = git.Repo(my_directory)
+      branch=str(payload['ref'][11:])
       repo.git.reset('--hard')
       origin = repo.remotes.origin
-      # repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master).checkout()
-      origin.pull()
+      origin.pull(branch)
       return 'Updated PythonAnywhere successfully', 200
     else:
         return 'Wrong event type', 400
