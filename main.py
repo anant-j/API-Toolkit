@@ -132,7 +132,7 @@ def webhook():
             origin = repo.remotes.origin
             origin.pull(branch)
             return 'Updated PythonAnywhere successfully', 200
-        except Exception as e:
+        except:
             return json.dumps({'msg':"An error occurred. Couldn't update deployment"})
     else:
         return 'Wrong event type', 400
