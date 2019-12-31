@@ -15,7 +15,7 @@ Known_Users = dict({"2193543988": 'ANANT-WORK', "117193127": 'ANANT-PC',
                     "4069111623": 'ANANT-PHONE'})  # Users whose Unique Id is known
 Fallback = "https://www.anant-j.com"  # Fallback original website
 Statuspage = "https://www.anant-j.com/api_status.html"
-Auth_Token = "QBLHnUhSdCzrh1DKXYDtR77gMsq4y6Ef"
+Auth_Token = "QBLHnUhSdCzrh1DKXYDtR77gMsq4y5Ef"
 Auth_Host = "www.anant-j.com"
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
