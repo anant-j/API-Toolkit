@@ -118,8 +118,15 @@ def webhook():
         return json.dumps({'msg': 'Ping Successful!'})
       if event != "push":
         return json.dumps({'msg': "Wrong event type"})
-      if payload['ref'] != 'refs/heads/master':
-        return json.dumps({'msg': 'Not master; ignoring'})
+
+      if(my_directory=="/home/stagingapi/mysite"):
+        if payload['ref'] == 'refs/heads/master':
+            return json.dumps({'msg': 'Master; ignoring'})
+
+      elif(my_directory!="/home/stagingapi/mysite"):
+        if payload['ref'] != 'refs/heads/master':
+            return json.dumps({'msg': 'Not master; ignoring'})
+            
       repo = git.Repo(my_directory)
       repo.git.reset('--hard')
       origin = repo.remotes.origin
