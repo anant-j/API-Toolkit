@@ -62,6 +62,6 @@ def verify(contact):
                                 )
         return (validation_request.validation_code)
     except Exception as e:
-        return(e)
+        return("Could not process request: "+ e)
 
 

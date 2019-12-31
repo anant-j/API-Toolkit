@@ -83,10 +83,13 @@ def pbdelete():
 def number_verification():
     number = request.args.get('number')
     AuthCode = request.args.get('auth')
-    if(len(number) == 10 and AuthCode == Auth_Token):
-        return(sms_handler.verify(number))
-    else:
+    if(len(number) != 10):
         return ("Please enter a valid number")
+    else:
+        if(AuthCode == Auth_Token):
+            return(sms_handler.verify(number))
+        else:
+            return ("Unauthorized User", 401)
 
 # Route for SMS. Uses Twilio API
 @app.route("/sms", methods=["POST"])
