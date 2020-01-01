@@ -32,3 +32,7 @@ jobs:
     - name: Pyflakes Syntax Checker
       uses: lgeiger/pyflakes-action@v1.0.1
     
+    - name: GitHub Action for pytest
+      uses: cclauss/GitHub-Action-for-pytest@0.5.0
+
+    
