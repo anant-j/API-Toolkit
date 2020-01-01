@@ -122,7 +122,7 @@ def webhook():
         if(my_directory != "/home/stagingapi/mysite"):
             if payload['ref'] != 'refs/heads/master':
                 return json.dumps({'msg': 'Not master; ignoring'})
-        try:
+        try: 
             repo = git.Repo(my_directory)
             branch = str(payload['ref'][11:])
             repo.git.reset('--hard')
