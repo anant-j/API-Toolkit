@@ -1,5 +1,4 @@
 import requests
-import json
 
 def getStatusCode(url):
     response = requests.get(url)
