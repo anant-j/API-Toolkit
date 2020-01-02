@@ -58,7 +58,7 @@ It also gets a Unique Fingerprint ID (UID) using an external Fingerprinting Scri
 5) The API returns success or error message. The website has no affect from this transaction.
 ##### Twilio's SMS Service:
 1) A verified user sends an SMS to the Twilio Number.
-2) Twilio sends the message via a POST request to the /SMS Endpoint
+2) Twilio sends the message via a POST request to the **/SMS Endpoint**
 3) The API service then decodes the message body in the request received to extract the "FROM" and "TO" waypoints.
 4) The service then consumes Google's Distance Matrix API and then computes the time taken to travel in traffic.
 5) The API service then calls Twilio function to send a SMS message back to that number.
