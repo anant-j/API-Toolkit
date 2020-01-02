@@ -52,16 +52,3 @@ def message_decoder(text):
         el = element.split(":")
         result[el[0].lower()] = el[1].lower().strip()
     return(result)
-
-def verify(contact):
-    try:
-        validation_request = client.validation_requests \
-                            .create(
-                                    friendly_name=contact,
-                                    phone_number=contact,
-                                )
-        return (validation_request.validation_code)
-    except Exception as e:
-        return("Could not process request: "+ e)
-
-
