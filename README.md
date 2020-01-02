@@ -3,7 +3,7 @@ Hi, this is a personal project. I did it for fun, to learn more about API Develo
 
 ___
 
-### What does this API do?
+## What does this API do?
 This API serves two purposes:
 1) Tracks personal website traffic while:
     a) Storing it in Google's Firebase Cloud Firestore Database
@@ -36,14 +36,15 @@ ___
 ### What tech stack does it use?
 The back-end service is based on Python and the framework used is Flask. 
 Here are the external APIs used:
+
 |API | Purpose|
 |--|--|
 |***WEB API***||
-|Google's Firebase  Cloud Storage| Storing Web Analytics Data in Cloud Firestore.  | 
+|Google's Firebase Cloud Storage| Storing Web Analytics Data in Cloud Firestore. 
 |Pushbullet API| To send notification to mobile device whenever website is visited.
 |***SMS API***||
-|Twilio's API| To receive and send messages via SMS. 
-|Google's Distance Matrix API| To compute travel time with traffic for requested co-ordinates.  
+|Twilio's API| To receive and send messages via SMS.
+|Google's Distance Matrix API| To compute travel time with traffic for requested co-ordinates.
   
 The code is hosted on PythonAnywhere and has an estimated [99.7% uptime](https://www.pythonanywhere.com/forums/topic/2026/).
 ___
