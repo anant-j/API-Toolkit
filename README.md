@@ -6,11 +6,11 @@ ___
 ## What does this API do?
 This API serves two purposes:
 1) Tracks personal website traffic while:
-    a) Storing it in Google's Firebase Cloud Firestore Database
-    b) Sending a Pushbullet notification to my mobile device on each visit
+    a) Storing it in Google's Firebase Cloud Firestore Database  
+    b) Sending a Pushbullet notification to my mobile device on each visit  
 2) Processes an incoming SMS Request from my mobile and then:
-a) Computes traffic times for the input co-ordinates
-b) Sends back the computed time via SMS to my mobile
+a) Computes traffic times for the input co-ordinates  
+b) Sends back the computed time via SMS to my mobile  
 
 ___
 
@@ -117,11 +117,11 @@ ___
 I faced a few challenges when developing this service.
 I consider these to be basic lessons for anyone developing consumer-facing APIs:
 - Bypassing **CORS** (Cross Origin Resource Sharing) to allow browsers to consume APIs.
-- Securing endpoints with either
-    a) OAuth JWT Tokens
-    b) **API Keys** (This is what I used)
+- Securing endpoints with either  
+    a) OAuth JWT Tokens  
+    b) **API Keys** (This is what I used)  
     c) Cookie forwarding with headers  
-    d) SSL or certificate verification
+    d) SSL or certificate verification  
 - **Continuous integration** with whatever deployment you are using. Changing the same code at 2 different places (GitHub and host) is a very tedious process, which might create redundancy and disparity between working code.
 - Setting up an API **Alert** if the server/deployment goes down. I used **[Uptime Robot](www.uptimerobot.com)** for this.
 
