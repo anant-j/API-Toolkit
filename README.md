@@ -91,14 +91,7 @@ I set up an automatic deployment from the **Master** branch to **PythonAnywhere*
 - Each deployment is updated via a Pushbullet notification.
 - If any deployment fails, I am alerted via email by **[Uptime Robot](www.uptimerobot.com)**.
 
-```mermaid
-graph TD
-di{LOCAL} --PUSH to Master --> E(Master on GitHub)
-di -- PUSH to Branch--> B(GitHub Branch != Master)
-B -- Via GitHub Webhooks --> C[ Staging Deployment ]
-C -- On Merge if Staging was successful--> E
-E -- Via GitHub Webhooks --> D{ Production Deployment }
-```
+![Mermaid Diagram](static/mermaid-diagram.svg)
 
 ___
 
