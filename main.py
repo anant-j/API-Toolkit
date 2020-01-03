@@ -109,7 +109,7 @@ def webhook():
         if(my_directory != "/home/stagingapi/mysite"):
             if payload['ref'] != 'refs/heads/master':
                 return json.dumps({'msg': 'Not master; ignoring'})
-        try: 
+        try:
             repo = git.Repo(my_directory)
             branch = str(payload['ref'][11:])
             repo.git.reset('--hard')
@@ -125,8 +125,8 @@ def webhook():
                 origin.pull('master')
                 pushbullet.send_raw("master",my_directory)
                 return 'Updated PythonAnywhere successfully(Master branch)', 200
-            except:
-                return json.dumps({'msg': "An error occurred. Couldn't update deployment"})
+            except Exception as e:
+                return (str(e))
     else:
         return 'Wrong event type', 400
 

@@ -42,7 +42,7 @@ def send_raw(branch, directory):
   dateTimeObj = datetime.now(eastern)
   url = 'https://api.pushbullet.com/v2/pushes'
   content = {
-  "body": "Branch: "+branch +" deployed at: "+dateTimeObj+" in: "+directory,
+  "body": "Branch: "+branch +"\n deployed at: "+str(dateTimeObj)+"\n in directory: "+directory,
   "title": "PythonAnywhere updated",
   "device_iden": DEVID,
   "type":"note"}
