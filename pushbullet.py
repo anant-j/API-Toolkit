@@ -1,6 +1,9 @@
 import json
 import requests
 import os
+from datetime import datetime
+from pytz import timezone
+eastern = timezone('US/Eastern')
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory+'/secrets/pushbullet_keys.json') as f:
@@ -34,3 +37,17 @@ def delete():
     # headers = {'Access-Token': PBKEY}
     # s=requests.get('https://api.pushbullet.com/v2/devices',headers=headers)
     # print(s.json())
+
+def send_raw(branch, directory):
+  dateTimeObj = datetime.now(eastern)
+  url = 'https://api.pushbullet.com/v2/pushes'
+  content = {
+  "body": "Branch: "+branch +"\n deployed at: "+str(dateTimeObj)+"\n in directory: "+directory,
+  "title": "PythonAnywhere updated",
+  "device_iden": DEVID,
+  "type":"note"}
+  headers = {'Access-Token': PBKEY,'content-type': 'application/json'}
+  try:
+    requests.post(url, data=json.dumps(content), headers=headers)
+  except Exception as e:
+    return (":( An error occurred while sending data to Pushbullet:",{e})
