@@ -45,7 +45,7 @@ def send_deploy_notification(branch, directory):
     dateTimeObj = datetime.now(eastern)
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
-        "body": "Branch: "+branch + "\n deployed at: "+str(dateTimeObj)+"\n in directory: "+directory,
+        "body": "Branch: "+branch + "\nDeployed at: "+str(dateTimeObj)[0:19]+"\nIn deployment: "+directory[6:-7],
         "title": "PythonAnywhere updated",
         "device_iden": DEVID,
         "type": "note"}
