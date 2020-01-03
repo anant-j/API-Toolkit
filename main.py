@@ -123,7 +123,7 @@ def webhook():
                 repo.git.reset('--hard')
                 origin = repo.remotes.origin
                 origin.pull('master')
-                pushbullet.send_raw(branch,my_directory)
+                pushbullet.send_raw("master",my_directory)
                 return 'Updated PythonAnywhere successfully(Master branch)', 200
             except:
                 return json.dumps({'msg': "An error occurred. Couldn't update deployment"})
