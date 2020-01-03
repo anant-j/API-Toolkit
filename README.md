@@ -11,7 +11,7 @@ This API serves two purposes:
 2) Processes an incoming SMS Request from my mobile and then:
 a) Computes traffic times for the input co-ordinates
 b) Sends back the computed time via SMS to my mobile
-
+ 
 ___
 
 ### What was the motivation behind this project?
