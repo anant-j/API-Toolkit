@@ -3,7 +3,25 @@ Hi, this is a personal project. I did it for fun, to learn more about API Develo
 
 ___
 
-## What does this API do?
+### Index
+- [What does this API do?](#what-does-this-api-do)
+- [What was the motivation behind this project?](#what-was-the-motivation-behind-this-project)
+- [How did I do it?](#how-did-i-do-it)
+- [What tech stack does it use?](#what-tech-stack-does-it-use)
+- [How does it work?](#how-does-it-work)
+    - [Web Analytic Engine](#web-analytic-engine)
+    - [Twilio's SMS Service](#twilios-sms-service)
+- [Why is there no logging inside the code?](#why-is-there-no-logging-inside-the-code)
+- [How is it deployed?](#how-is-it-deployed)
+- [Why does the code fail when the repo is cloned?](#why-does-the-code-fail-when-the-repo-is-cloned)
+    - [How do I run it locally?](#how-do-i-run-it-locally)
+- [Challenges I faced while developing this project](#challenges-i-faced-while-developing-this-project)
+- [How much did it cost to make this service and consume the external APIs?](#how-much-did-it-cost-to-make-this-service-and-consume-the-external-apis)
+- [Can I contribute?](#can-i-contribute)
+    - [Contact](#contact)
+    - [Licensing](#licensing)
+___ 
+### What does this API do?
 This API serves two purposes:
 1) Tracks personal website traffic while:</br>
 a) Storing it in Google's Firebase Cloud Firestore Database.</br> 
@@ -45,6 +63,9 @@ Here are the external APIs used:
 |***SMS API***||
 |Twilio's API| To receive and send messages via SMS.
 |Google's Distance Matrix API| To compute travel time with traffic for requested co-ordinates.
+|***PYTEST INTEGRATION***||
+|GitHub's REST API| To receive latest commit's hash for specified branch.
+|API-Toolkit ***(CURRENT API)*** | To receive branch and hash, then compare it with latest hash for the branch using GitHub's API.
   
 The code is hosted on PythonAnywhere and has an estimated [99.7% uptime](https://www.pythonanywhere.com/forums/topic/2026/).
 ___
@@ -85,13 +106,12 @@ The API is deployed on PythonAnywhere.
 I set up an automatic deployment from the **Master** branch to **PythonAnywhere** using **GitHub Webhooks**.
 > Kindly refer to [this](https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664) for more info on live deployment via Local > GitHub > PythonAnywhere. 
 - **Branch rules** have been set up to prevent direct pushes to master (deployment) branch.
-- An **automated GitHub workflow (action)** runs on every push. This **checks the dependancy requirements**, and also runs **pyflakes** on the repository.
+- An **automated GitHub workflow (action)** runs on every push. This **checks the dependancy requirements**, runs **pyflakes** on the repository and then runs a deployment check using ***PYTEST***.
 - Every single push event on Master is updated to the PythonAnywhere server where it is deployed instantly.
 - There is also another **staging API** where changes made on different branches are deployed. This is a **failsafe**. If the staging-api fails to deploy, the branch should not be merged.
-- Each deployment is updated via a Pushbullet notification.
 - If any deployment fails, I am alerted via email by **[Uptime Robot](www.uptimerobot.com)**.
 
-![Mermaid Diagram](static/mermaid-diagram.svg)
+![Mermaid Diagram](static/Deployment_flow.png)
 
 ___
 
