@@ -121,7 +121,7 @@ def webhook():
             repo.git.reset('--hard')
             origin = repo.remotes.origin
             origin.pull(branch)
-            test_handler.write(branch+","+payload+str(payload['after']))
+            test_handler.write(branch+","+str(payload['after']))
             return 'Updated PythonAnywhere successfully', 200
         except:
             try:
@@ -129,7 +129,7 @@ def webhook():
                 repo.git.reset('--hard')
                 origin = repo.remotes.origin
                 origin.pull('master')
-                test_handler.write("master"+","+payload+str(payload['after']))
+                test_handler.write("master"+","+str(payload['after']))
                 return 'Updated PythonAnywhere successfully(Master branch)', 200
             except Exception as e:
                 return (str(e))
