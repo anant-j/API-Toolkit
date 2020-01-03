@@ -91,6 +91,7 @@ I set up an automatic deployment from the **Master** branch to **PythonAnywhere*
 - Each deployment is updated via a Pushbullet notification.
 - If any deployment fails, I am alerted via email by **[Uptime Robot](www.uptimerobot.com)**.
 
+![Mermaid Diagram](static/mermaid-diagram.svg)
 
 ___
 
