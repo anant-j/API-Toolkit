@@ -15,24 +15,26 @@ auth_token = tw_keys['MY_AUTH_TOKEN']
 
 client = Client(account_sid, auth_token, http_client=proxy_client)
 
+
 def send_sms(message_content, contact):
-    if (message_content.lower().strip()=="usage"):
-        response ="\nThank you for using this service. \nPlease format your message in the following format: \n'From: Origin Location - To: Destination Location' \nThank you"
-    elif (message_content.lower().strip()=="bus home"):
-        time=travel_time_api.bus_home()
+    if (message_content.lower().strip() == "usage"):
+        response = "\nThank you for using this service. \nPlease format your message in the following format: \n'From: Origin Location - To: Destination Location' \nThank you"
+    elif (message_content.lower().strip() == "bus home"):
+        time = travel_time_api.bus_home()
         response = "The estimated total time to reach home by bus is: "+time
-    elif (message_content.lower().strip()=="go to work"):
-        time=travel_time_api.gowork()
+    elif (message_content.lower().strip() == "go to work"):
+        time = travel_time_api.gowork()
         response = "The estimated total time to reach work by bus is: "+time
     else:
         try:
             locations = message_decoder(message_content)
             try:
-                travel = travel_time_api.TravelTime(locations['from'], locations['to'])
-                traffictime = travel.print_traffictime()
+                travel = travel_time_api.TravelTime(
+                    locations['from'], locations['to'])
+                traffictime = travel.get_traffictime()
                 distance = travel.get_distance()
                 response = "The distance is: "+distance + \
-                ". The travel time with traffic right now is: "+traffictime
+                    ". The travel time with traffic right now is: "+traffictime
             except:
                 response = "Travel time cannot be retrieved for the input co-ordinates 😟."
         except:
