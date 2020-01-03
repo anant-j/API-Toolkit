@@ -64,6 +64,7 @@ It also gets a Unique Fingerprint ID (UID) using an external Fingerprinting Scri
 4) The service then consumes Google's Distance Matrix API and then computes the time taken to travel in traffic.
 5) The API service then calls Twilio function to send a SMS message back to that number.
 
+![Data flow for both features within the same API](static/API-Toolkit.png)
 ___
 
 ### Why is there no logging inside the code?
