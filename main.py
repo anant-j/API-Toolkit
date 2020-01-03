@@ -11,6 +11,7 @@ import github_verify
 import git
 import json
 import params
+import test_handler
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
 Known_Users = params.Known_Users
@@ -42,6 +43,11 @@ def favicon():
 @app.route('/status')
 def health():
     return ("UP", 200)
+
+# Health Check Route
+@app.route('/git')
+def gitstats():
+    return (str(test_handler.read()), 200)
 
 # Core API to Add Data to Firestore + Push messages via Pushbullet
 @app.route('/api', methods=['POST'])  # GET requests will be blocked
@@ -106,6 +112,7 @@ def webhook():
         if event != "push":
             return json.dumps({'msg': "Wrong event type"})
 
+
         if(my_directory != "/home/stagingapi/mysite"):
             if payload['ref'] != 'refs/heads/master':
                 return json.dumps({'msg': 'Not master; ignoring'})
@@ -115,7 +122,7 @@ def webhook():
             repo.git.reset('--hard')
             origin = repo.remotes.origin
             origin.pull(branch)
-            pushbullet.send_deploy_notification(branch, my_directory)
+            test_handler.write(branch+","+payload+str(payload['after']))
             return 'Updated PythonAnywhere successfully', 200
         except:
             try:
@@ -123,7 +130,7 @@ def webhook():
                 repo.git.reset('--hard')
                 origin = repo.remotes.origin
                 origin.pull('master')
-                pushbullet.send_deploy_notification("master", my_directory)
+                test_handler.write("master"+","+payload+str(payload['after']))
                 return 'Updated PythonAnywhere successfully(Master branch)', 200
             except Exception as e:
                 return (str(e))
