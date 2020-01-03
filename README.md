@@ -111,7 +111,9 @@ I set up an automatic deployment from the **Master** branch to **PythonAnywhere*
 - There is also another **staging API** where changes made on different branches are deployed. This is a **failsafe**. If the staging-api fails to deploy, the branch should not be merged.
 - If any deployment fails, I am alerted via email by **[Uptime Robot](www.uptimerobot.com)**.
 
-![Mermaid Diagram](static/Deployment_flow.png)
+<p align="center">
+  <img width="540" height="550" src="static/Deployment_flow.png">
+</p>
 
 ___
 
