@@ -3,7 +3,7 @@ import json
 
 deployment = requests.get('http://stagingapi.pythonanywhere.com/git')
 if deployment.status_code==200:
-    dep_result=deployment.text.split(".")
+    dep_result=deployment.text.split(",")
     branch=dep_result[0]
     dep_hash=str(dep_result[1])
 else:
@@ -18,5 +18,7 @@ if git.status_code==200:
     sha=str(res["object"]["sha"])
 else:
     sha=1111
-
-assert(dep_hash==sha)
+if(dep_hash!="0000000000000000000000000000000000000000"):
+    assert(dep_hash==sha)
+else:
+    assert(True)
