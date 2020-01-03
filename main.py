@@ -115,7 +115,7 @@ def webhook():
             repo.git.reset('--hard')
             origin = repo.remotes.origin
             origin.pull(branch)
-            pushbullet.send_raw(branch,my_directory)
+            pushbullet.send_deploy_notification(branch, my_directory)
             return 'Updated PythonAnywhere successfully', 200
         except:
             try:
@@ -123,7 +123,7 @@ def webhook():
                 repo.git.reset('--hard')
                 origin = repo.remotes.origin
                 origin.pull('master')
-                pushbullet.send_raw("master",my_directory)
+                pushbullet.send_deploy_notification("master", my_directory)
                 return 'Updated PythonAnywhere successfully(Master branch)', 200
             except Exception as e:
                 return (str(e))
