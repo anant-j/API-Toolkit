@@ -1,5 +1,4 @@
 # https://cloud.google.com/community/tutorials/building-flask-api-with-cloud-firestore-and-deploying-to-cloud-run
-
 from flask import Flask, request, redirect, send_from_directory, abort
 from flask_cors import CORS
 from firebase_admin import credentials, firestore, initialize_app
