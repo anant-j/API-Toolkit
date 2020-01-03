@@ -5,12 +5,12 @@ ___
 
 ## What does this API do?
 This API serves two purposes:
-1) Tracks personal website traffic while:
-    a) Storing it in Google's Firebase Cloud Firestore Database  
-    b) Sending a Pushbullet notification to my mobile device on each visit  
-2) Processes an incoming SMS Request from my mobile and then:
-a) Computes traffic times for the input co-ordinates  
-b) Sends back the computed time via SMS to my mobile  
+1) Tracks personal website traffic while:</br>
+a) Storing it in Google's Firebase Cloud Firestore Database.</br> 
+b) Sending a Pushbullet notification to my mobile device on each visit.</br>
+2) Processes an incoming SMS Request from my mobile and then:</br>
+a) Computes traffic times for the input co-ordinates  </br>
+b) Sends back the computed time via SMS to my mobile  </br>
 
 ___
 
