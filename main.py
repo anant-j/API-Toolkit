@@ -9,7 +9,6 @@ import sms_handler
 import pushbullet
 import github_verify
 import git
-import subprocess
 import json
 import params
 my_directory = os.path.dirname(os.path.abspath(__file__))
@@ -20,7 +19,6 @@ Statuspage = params.Statuspage
 Auth_Token = params.Auth_Token
 Auth_Host = params.Auth_Host
 
-sha=""
 # Initialize Flask App
 app = Flask(__name__)
 cors = CORS(app)
@@ -44,12 +42,6 @@ def favicon():
 @app.route('/status')
 def health():
     return ("UP", 200)
-
-# Health Check Route
-@app.route('/git')
-def health():
-    return (sha, 200)
-
 
 # Core API to Add Data to Firestore + Push messages via Pushbullet
 @app.route('/api', methods=['POST'])  # GET requests will be blocked
@@ -123,7 +115,6 @@ def webhook():
             repo.git.reset('--hard')
             origin = repo.remotes.origin
             origin.pull(branch)
-            sha = repo.head.object.hexsha
             return 'Updated PythonAnywhere successfully', 200
         except:
             try:
@@ -131,10 +122,8 @@ def webhook():
                 repo.git.reset('--hard')
                 origin = repo.remotes.origin
                 origin.pull('master')
-                sha = repo.head.object.hexsha
                 return 'Updated PythonAnywhere successfully(Master branch)', 200
             except:
-                sha = "error"
                 return json.dumps({'msg': "An error occurred. Couldn't update deployment"})
     else:
         return 'Wrong event type', 400
