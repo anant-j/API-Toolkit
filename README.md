@@ -87,6 +87,7 @@ I set up an automatic deployment from the **Master** branch to **PythonAnywhere*
 - An **automated GitHub workflow (action)** runs on every push. This **checks the dependancy requirements**, and also runs **pyflakes** on the repository.
 - Every single push event on Master is updated to the PythonAnywhere server where it is deployed instantly.
 - There is also another **staging API** where changes made on different branches are deployed. This is a **failsafe**. If the staging-api fails to deploy, the branch should not be merged.
+- Each deployment is updated via a Pushbullet notification.
 - If any deployment fails, I am alerted via email by **[Uptime Robot](www.uptimerobot.com)**.
 
 
