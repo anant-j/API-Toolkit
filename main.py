@@ -104,42 +104,39 @@ def sms_reply():
 # CI with GitHub https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
 def webhook():
-    if request.method == 'POST':
-        event = request.headers.get('X-GitHub-Event')
-        payload = request.get_json()
-        x_hub_signature = request.headers.get('X-Hub-Signature')
-        if not github_verify.is_valid_signature(x_hub_signature, request.data):
-            print('Deploy signature failed: {sig}'.format(sig=x_hub_signature))
-            abort(401)
-        if event == "ping":
-            return json.dumps({'msg': 'Ping Successful!'})
-        if event != "push":
-            return json.dumps({'msg': "Wrong event type"})
+    event = request.headers.get('X-GitHub-Event')
+    payload = request.get_json()
+    x_hub_signature = request.headers.get('X-Hub-Signature')
+    if not github_verify.is_valid_signature(x_hub_signature, request.data):
+        print('Deploy signature failed: {sig}'.format(sig=x_hub_signature))
+        abort(401)
+    if event == "ping":
+        return json.dumps({'msg': 'Ping Successful!'})
+    if event != "push":
+        return json.dumps({'msg': "Wrong event type"})
 
 
-        if(my_directory != "/home/stagingapi/mysite"):
-            if payload['ref'] != 'refs/heads/master':
-                return json.dumps({'msg': 'Not master; ignoring'})
+    if(my_directory != "/home/stagingapi/mysite"):
+        if payload['ref'] != 'refs/heads/master':
+            return json.dumps({'msg': 'Not master; ignoring'})
+    try:
+        repo = git.Repo(my_directory)
+        branch = str(payload['ref'][11:])
+        repo.git.reset('--hard')
+        origin = repo.remotes.origin
+        origin.pull(branch)
+        file_handler.write(branch+","+str(payload['after']))
+        return 'Updated PythonAnywhere successfully', 200
+    except:
         try:
             repo = git.Repo(my_directory)
-            branch = str(payload['ref'][11:])
             repo.git.reset('--hard')
             origin = repo.remotes.origin
-            origin.pull(branch)
-            file_handler.write(branch+","+str(payload['after']))
-            return 'Updated PythonAnywhere successfully', 200
-        except:
-            try:
-                repo = git.Repo(my_directory)
-                repo.git.reset('--hard')
-                origin = repo.remotes.origin
-                origin.pull('master')
-                file_handler.write("master"+","+str(payload['after']))
-                return 'Updated PythonAnywhere successfully(Master branch)', 200
-            except Exception as e:
-                return (str(e))
-    else:
-        return 'Wrong event type', 400
+            origin.pull('master')
+            file_handler.write("master"+","+str(payload['after']))
+            return 'Updated PythonAnywhere successfully(Master branch)', 200
+        except Exception as e:
+            return (str(e))
 
 # Handle Internal Server Errors
 @app.errorhandler(500)
