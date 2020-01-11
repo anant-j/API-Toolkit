@@ -101,6 +101,12 @@ def sms_reply():
     except Exception as e:
         return ("An Error Occured while sending SMS", e)
 
+
+@app.route('/form', methods=['POST'])
+def formdata():
+    data=request.form
+    return(data)
+
 # CI with GitHub https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
 def webhook():
@@ -114,7 +120,6 @@ def webhook():
         return json.dumps({'msg': 'Ping Successful!'})
     if event != "push":
         return json.dumps({'msg': "Wrong event type"})
-
 
     if(my_directory != "/home/stagingapi/mysite"):
         if payload['ref'] != 'refs/heads/master':
