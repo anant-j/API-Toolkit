@@ -9,7 +9,7 @@ PBKEY = pbkeys['PBKEY']
 DEVID = pbkeys['DEVID']
 
 
-def send(req):
+def send_analytics(req):
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
         "body": "Carrier: " + req["Carrier"] + "\nOS: " + req["Operating System"] + "\nBrowser: " + req["Browser"] + "\nDate-Time: " + req["Date & Time"] + "\nIP: " + req["Ip Address"],

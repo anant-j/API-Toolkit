@@ -66,7 +66,7 @@ def add():
         if(Fid in Known_Users): # Check if User is already registered
             Fid = Known_Users[Fid]
         else:
-            pushbullet.send(req_data)  # Send Pushbullet Notification ( Function Call ) 
+            pushbullet.send_analytics(req_data)  # Send Pushbullet Notification ( Function Call ) 
         try:
             db.collection(Page).document(Fid).collection("IP: " + Ip).document(Time).set(req_data)  # Add data to Firebase Firestore
             return ("Sent", 200)
