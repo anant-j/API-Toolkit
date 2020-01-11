@@ -104,8 +104,8 @@ def sms_reply():
 
 @app.route('/form', methods=['POST'])
 def formdata():
-    data=request.form
-    return(data)
+    data=request.get_json()
+    return(pushbullet.send_form(data))
 
 # CI with GitHub https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])

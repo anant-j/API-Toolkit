@@ -22,6 +22,19 @@ def send_analytics(req):
     except Exception as e:
         return (":( An error occurred while sending data to Pushbullet:", {e})
 
+def send_form(formData):
+    url = 'https://api.pushbullet.com/v2/pushes'
+    content = {
+        "body": formData,
+        "title": "Someone sent you a message via contact form",
+        "device_iden": DEVID,
+        "type": "note"}
+    headers = {'Access-Token': PBKEY, 'content-type': 'application/json'}
+    try:
+        requests.post(url, data=json.dumps(content), headers=headers)
+    except Exception as e:
+        return (":( An error occurred while sending data to Pushbullet:", {e})
+
 
 def delete():
     url = "https://api.pushbullet.com/v2/pushes"
