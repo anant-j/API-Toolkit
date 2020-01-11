@@ -10,7 +10,7 @@ import github_verify
 import git
 import json
 import params
-import test_handler
+import file_handler
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
 Known_Users = params.Known_Users
@@ -46,7 +46,7 @@ def health():
 # Health Check Route
 @app.route('/git')
 def gitstats():
-    return (str(test_handler.read()), 200)
+    return (str(file_handler.read()), 200)
 
 # Core API to Add Data to Firestore + Push messages via Pushbullet
 @app.route('/api', methods=['POST'])  # GET requests will be blocked
@@ -60,7 +60,7 @@ def add():
     Ip_details = req_data['Ip Details']
     Time = req_data['Date & Time']
     Fid = str(req_data['Fingerprint Id'])
-    
+
     # Hostname Verification to prevent spoofing
     if(req_data['Host'] == Auth_Host):
         if(Fid in Known_Users): # Check if User is already registered
@@ -126,7 +126,7 @@ def webhook():
             repo.git.reset('--hard')
             origin = repo.remotes.origin
             origin.pull(branch)
-            test_handler.write(branch+","+str(payload['after']))
+            file_handler.write(branch+","+str(payload['after']))
             return 'Updated PythonAnywhere successfully', 200
         except:
             try:
@@ -134,7 +134,7 @@ def webhook():
                 repo.git.reset('--hard')
                 origin = repo.remotes.origin
                 origin.pull('master')
-                test_handler.write("master"+","+str(payload['after']))
+                file_handler.write("master"+","+str(payload['after']))
                 return 'Updated PythonAnywhere successfully(Master branch)', 200
             except Exception as e:
                 return (str(e))
