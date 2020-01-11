@@ -10,7 +10,7 @@ import github_verify
 import git
 import json
 import params
-import test_handler
+import file_handler
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
 Known_Users = params.Known_Users
@@ -46,28 +46,29 @@ def health():
 # Health Check Route
 @app.route('/git')
 def gitstats():
-    return (str(test_handler.read()), 200)
+    return (str(file_handler.read()), 200)
 
 # Core API to Add Data to Firestore + Push messages via Pushbullet
 @app.route('/api', methods=['POST'])  # GET requests will be blocked
 def add():
+    if(my_directory == "/home/stagingapi/mysite"):
+        return("Blocked. This is is not available on the staging API.", 401)
     # https://scotch.io/bar-talk/processing-incoming-request-data-in-flask
     req_data = request.get_json()
     Page = req_data['Page']
     Ip = req_data['Ip Address']
+    # Ip_details = req_data['Ip Details']
     Time = req_data['Date & Time']
     Fid = str(req_data['Fingerprint Id'])
 
-    # Check if User is already known
-    if(Fid in Known_Users):
-        Fid = Known_Users[Fid]
-    else:
-        if(req_data['Host'] == Auth_Host):
-            pushbullet.send(req_data)  # Send Notification Function Call
-    if(req_data['Host'] == Auth_Host):  # Hostname Verification to prevent spoofing
+    # Hostname Verification to prevent spoofing
+    if(req_data['Host'] == Auth_Host):
+        if(Fid in Known_Users): # Check if User is already registered
+            Fid = Known_Users[Fid]
+        else:
+            pushbullet.send(req_data)  # Send Pushbullet Notification ( Function Call ) 
         try:
-            db.collection(Page).document("UID: "+Fid).collection("IP: " +
-                                                                 Ip).document(Time).set(req_data)  # Add data to Firebase Firestore
+            db.collection(Page).document(Fid).collection("IP: " + Ip).document(Time).set(req_data)  # Add data to Firebase Firestore
             return ("Sent", 200)
         except Exception as e:
             return (":( An Error Occured while sending data to Firebase:", {e})
@@ -77,6 +78,8 @@ def add():
 # Route to Delete All Pushbullet Notifications. # Route to Shut Down API. Uses 256-bit key encryption.
 @app.route('/pbdel', methods=['GET'])
 def pbdelete():
+    if(my_directory == "/home/stagingapi/mysite"):
+        return("Blocked. This is is not available on the staging API.", 401)
     AuthCode = request.args.get('auth')
     if(AuthCode == Auth_Token):
         return(pushbullet.delete())
@@ -86,6 +89,8 @@ def pbdelete():
 # Route for SMS. Uses Twilio API
 @app.route("/sms", methods=["POST"])
 def sms_reply():
+    if(my_directory == "/home/stagingapi/mysite"):
+        return("Blocked. This is is not available on the staging API.", 401)
     message_content = request.values.get('Body', None)
     contact = request.values.get('From', None)
     try:
@@ -121,7 +126,7 @@ def webhook():
             repo.git.reset('--hard')
             origin = repo.remotes.origin
             origin.pull(branch)
-            test_handler.write(branch+","+str(payload['after']))
+            file_handler.write(branch+","+str(payload['after']))
             return 'Updated PythonAnywhere successfully', 200
         except:
             try:
@@ -129,7 +134,7 @@ def webhook():
                 repo.git.reset('--hard')
                 origin = repo.remotes.origin
                 origin.pull('master')
-                test_handler.write("master"+","+str(payload['after']))
+                file_handler.write("master"+","+str(payload['after']))
                 return 'Updated PythonAnywhere successfully(Master branch)', 200
             except Exception as e:
                 return (str(e))
