@@ -57,7 +57,7 @@ def add():
     req_data = request.get_json()
     Page = req_data['Page']
     Ip = req_data['Ip Address']
-    Ip_details = req_data['Ip Details']
+    # Ip_details = req_data['Ip Details']
     Time = req_data['Date & Time']
     Fid = str(req_data['Fingerprint Id'])
 
