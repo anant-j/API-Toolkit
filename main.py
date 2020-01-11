@@ -104,9 +104,13 @@ def sms_reply():
 
 @app.route('/form', methods=['POST'])
 def formdata():
-    data=request.get_json(force=True) 
-    pushbullet.send_form(data)
-    return(data)
+    try:
+        data=request.get_json(force=True) 
+        pushbullet.send_form(data)
+        db.collection("Form").document(data["email"]).set(data)  # Add data to Firebase Firestore
+        return("Form sent")
+    except:
+        return("Form Could not be sent", 500)
 
 # CI with GitHub https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
