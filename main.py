@@ -57,19 +57,18 @@ def add():
     req_data = request.get_json()
     Page = req_data['Page']
     Ip = req_data['Ip Address']
+    Ip_details = req_data['Ip Details']
     Time = req_data['Date & Time']
     Fid = str(req_data['Fingerprint Id'])
-
-    # Check if User is already known
-    if(Fid in Known_Users):
-        Fid = Known_Users[Fid]
-    else:
-        if(req_data['Host'] == Auth_Host):
-            pushbullet.send(req_data)  # Send Notification Function Call
-    if(req_data['Host'] == Auth_Host):  # Hostname Verification to prevent spoofing
+    
+    # Hostname Verification to prevent spoofing
+    if(req_data['Host'] == Auth_Host):
+        if(Fid in Known_Users): # Check if User is already registered
+            Fid = Known_Users[Fid]
+        else:
+            pushbullet.send(req_data)  # Send Pushbullet Notification ( Function Call ) 
         try:
-            db.collection(Page).document("UID: "+Fid).collection("IP: " +
-                                                                 Ip).document(Time).set(req_data)  # Add data to Firebase Firestore
+            db.collection(Page).document(Fid).collection("IP: " + Ip).document(Time).set(req_data)  # Add data to Firebase Firestore
             return ("Sent", 200)
         except Exception as e:
             return (":( An Error Occured while sending data to Firebase:", {e})
