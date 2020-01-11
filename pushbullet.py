@@ -25,7 +25,7 @@ def send_analytics(req):
 def send_form(formData):
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
-        "body": str(formData),
+        "body": "Name: " + formData["name"] + "\nEmail: " + formData["email"] + "\nAbout: " + formData["about"] + "\nMessage: " + formData["message"],
         "title": "Someone sent you a message via contact form",
         "device_iden": DEVID,
         "type": "note"}
