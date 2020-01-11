@@ -74,7 +74,7 @@ ___
 ##### Web Analytic Engine:
 1) When someone visits the website, it consumes **IPAPI's** API via an AJAX call to fetch the Public IP Address as well as some other parameters.
 It also gets a Unique Fingerprint ID (UID) using an external Fingerprinting Script
-2) The website then sends a **POST Request** to **/api endpoint** via XMLHttpRequest method. This POST request contains the IP Address, the UID and the other fetched data.
+2) The website then sends a **POST Request** to **/analytics endpoint** via XMLHttpRequest method. This POST request contains the IP Address, the UID and the other fetched data.
 3) The API Service then checks if the UID is one of my personal devices. If it is not, it calls the Pushbullet API and sends a notification to my phone.
 4) The API Servcie then sends the collected data to Firebase Firestore Cloud Storage.  
 5) The API returns success or error message. The website has no affect from this transaction.

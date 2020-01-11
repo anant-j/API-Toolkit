@@ -49,7 +49,7 @@ def gitstats():
     return (str(file_handler.read()), 200)
 
 # Core API to Add Data to Firestore + Push messages via Pushbullet
-@app.route('/api', methods=['POST'])  # GET requests will be blocked
+@app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def add():
     if(my_directory == "/home/stagingapi/mysite"):
         return("Blocked. This is is not available on the staging API.", 401)
