@@ -32,7 +32,3 @@ def delete():
     except Exception as e:
         return (":( An error occurred while deleting data from Pushbullet:", {e})
 
-    # # To list all user devices
-    # headers = {'Access-Token': PBKEY}
-    # s=requests.get('https://api.pushbullet.com/v2/devices',headers=headers)
-    # print(s.json())
