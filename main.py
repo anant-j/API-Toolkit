@@ -104,7 +104,7 @@ def sms_reply():
 
 @app.route('/form', methods=['POST'])
 def formdata():
-    data=request.get_json()
+    data=request.values
     pushbullet.send_form(data)
     return("Complete")
 
