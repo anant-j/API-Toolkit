@@ -29,6 +29,9 @@ b) Sending a Pushbullet notification to my mobile device on each visit.</br>
 2) Processes an incoming SMS Request from my mobile and then:</br>
 a) Computes traffic times for the input co-ordinates  </br>
 b) Sends back the computed time via SMS to my mobile  </br>
+3) Sends Contact Form to: </br>
+a) Pushbullet Mobile Notification </br>
+b) Google's Firebase Cloud Firestore Database. </br> 
 
 ___
 
@@ -37,12 +40,14 @@ ___
 
 2) Mobile data is also fairy expensive in Canada. For my internship, I travel 4 hours each weekday, and checking Google Maps for traffic times consumes my limited mobile data at a drastic pace. 
 
+3) I wanted to send contact form information to me and store it without taking the user to an external website. All existing Forms services like Typeform are either paid or require external captcha's to function.
+
 I knew I had to solve these problems by making my own service as the one's available on the market were either paid, or too complicated to customize.
 
 ___
 
 ### How did I do it?
-I decided to solve the above 2 problems by making my own **web-analytics** engine as well as **a messaging service**. I was sure I needed a seperate back-end as I planned on integrating multiple external APIs and I **did not wish to expose API keys on the client-side code**.
+I decided to solve the above 3 problems by making my own **web-analytics** engine, **forms api** as well as **a messaging service**. I was sure I needed a seperate back-end as I planned on integrating multiple external APIs and I **did not wish to expose API keys on the client-side code**.
 
 I am/was also working on API Development for Canadian Imperial Bank of Commerce (CIBC) for my internship, and decided that an **API** would be the best way to tackle such problems. 
 
@@ -57,7 +62,7 @@ Here are the external APIs used:
 
 |API | Purpose|
 |--|--|
-|***WEB API***||
+|***WEB API* & *Forms API***||
 |Google's Firebase Cloud Storage| Storing Web Analytics Data in Cloud Firestore. 
 |Pushbullet API| To send notification to mobile device whenever website is visited.
 |***SMS API***||
@@ -84,6 +89,12 @@ It also gets a Unique Fingerprint ID (UID) using an external Fingerprinting Scri
 3) The API service then decodes the message body in the request received to extract the "FROM" and "TO" waypoints.
 4) The service then consumes Google's Distance Matrix API and then computes the time taken to travel in traffic.
 5) The API service then calls Twilio function to send a SMS message back to that number.
+##### Forms API:
+1) A website visitor fills the form and clicks send.
+2) A **POST request** is made to my **/form Endpoint**
+3) The API service then decodes the message body in the request received to extract the JSON data.
+4) The service then consumes Pushbullet API and sends a notification to my phone.
+5) The API service then calls Google's Firebase service to store the form data in a secure manner.
 
 ![Data flow for both features within the same API](static/API-Toolkit.png)
 ___
@@ -165,9 +176,29 @@ Yes, there are some motnhly/daily usage limits. However, these limits are way hi
 
 ___
 
-<!-- ### What is the future roadmap for this application?
-@TODO -->
-
+### What is the SDLC for API Development?
+API Development from scratch usually involves the same 5 steps as any code release does:
+#### - Design
+- Before development begins, there needs to be a design document that states the different endpoints the API would have, and how each of these endpoints work.
+- This is known as **Design First** Based Approach
+- For each piece of code written in your life, you would have an idea of what you were doing before you began coding, just writing these ideas into a document solidifies your design principles and ensures consistency.
+- Tools: SwaggerHub 
+#### - Create
+- Once the API is designed, it is built with respect to the design document, with required changes to both the code as well as the document being made on the fly.
+- Tools: Python with Flask, Java + SpringBoot + Maven, Python with Django, Ruby on Rails, NodeJS
+#### - Test 
+- Once the API is ready to be published, it should be tested thoroughly. This should be done by adopting different testing methodologies, such as Unit Testing, Integration Testing, White and Black box testing.
+- This is where load testing should be done for your API as well.
+- Tools: LoaderIo, CrossBrowserTesting, CORS test
+#### - Deploy
+- Once your API is tested and ready to be released into production, it can be run locally and exposed to the internet via a self hosted server or external services such as Ngrok.
+- The industry standard is to release APIs to the cloud using services such as AWS, Google Cloud Platform, DigitalOcean or small scale applications like PythonAnywhere. 
+#### - Monitor
+- Monitoring tools should be set up to measure performance of the deployed API.
+- This can either be done manually by setting up loggers and reviewing them frequently.
+- Another method is to set up automatic performance measurement tools which measure important KPIs for your API.
+- Tools: AlertSite, UptimeRobot
+___
 ### Can I contribute?
 **Ofcourse!!** I'll be more than happy to discuss any improvements and suggestions.
 - If you have a code idea, please [CONTRIBUTE!!](https://codeburst.io/a-step-by-step-guide-to-making-your-first-github-contribution-5302260a2940)
