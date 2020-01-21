@@ -2,7 +2,9 @@ import requests
 import time
 import json
 import os
-from datetime import timedelta
+from datetime import datetime,timedelta
+from dateutil import tz
+from urllib.request import urlopen
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory+'/secrets/distance_matrix_keys.json') as f:
@@ -43,17 +45,18 @@ def bus_home():
         total_time=str(timedelta(minutes=total_time))
         hour=total_time[:-6]
         if int(hour) > 1:
-            hour = hour + " hours"
+            res_hour = hour + " hours"
         else:
-            hour = hour + " hour"
+            res_hour = hour + " hour"
         minute=total_time[2:-3]
+        res_eta=eta(int(str(hour)),int(str(minute)))
         if int(minute) > 1:
-            minute = minute +" minutes"
+            res_minute = minute +" minutes"
         else:
-            minute = minute + " minute"
-        return (hour+" "+minute)
+            res_minute = minute + " minute"
+        return (res_hour+" "+res_minute+"\nThe estimated ETA is: "+res_eta)
     else:
-        return (str(total_time)+" minutes")
+        return (str(total_time)+" minutes.\nThe estimated ETA is: " + res_eta)
 
 def gowork():
     Travel=TravelTime("King St. W. @ Dundurn St. N","Union Station Bus Terminal Toronto")
@@ -63,15 +66,28 @@ def gowork():
         total_time=str(timedelta(minutes=total_time))
         hour=total_time[:-6]
         if int(hour) > 1:
-            hour = hour + " hours"
+            res_hour = hour + " hours"
         else:
-            hour = hour + " hour"
+            res_hour = hour + " hour"
         minute=total_time[2:-3]
+        res_eta=eta(int(str(hour)),int(str(minute)))
+        print(res_eta)        
         if int(minute) > 1:
-            minute = minute +" minutes"
+            res_minute = minute +" minutes"
         else:
-            minute = minute + " minute"
-        return (hour+" "+minute)
+            res_minute = minute + " minute"
+        return (res_hour+" "+res_minute+"\nThe estimated ETA is: "+res_eta)
     else:
-        return (str(total_time)+" minutes")
+        return (str(total_time)+" minutes.\nThe estimated ETA is: "+res_eta)
 
+
+def eta(h,m):
+    res = urlopen('http://just-the-time.appspot.com/')
+    result = res.read().strip()
+    result_str = result.decode('utf-8')
+    from_zone = tz.gettz('UTC')
+    to_zone = tz.gettz('America/New_York')
+    utc = datetime.strptime(result_str, '%Y-%m-%d %H:%M:%S')
+    utc = utc.replace(tzinfo=from_zone)
+    central = utc.astimezone(to_zone)
+    return (str(central + timedelta(hours=h,minutes=m))[11:19])
