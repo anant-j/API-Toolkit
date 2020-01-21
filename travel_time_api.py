@@ -90,4 +90,4 @@ def eta(h,m):
     utc = datetime.strptime(result_str, '%Y-%m-%d %H:%M:%S')
     utc = utc.replace(tzinfo=from_zone)
     central = utc.astimezone(to_zone)
-    return (str(central + timedelta(hours=h,minutes=m))[11:19])
+    return (str(central + timedelta(hours=h,minutes=m))[0:19])
