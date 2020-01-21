@@ -2,10 +2,11 @@ from twilio.rest import Client
 import json
 import travel_time_api
 import os
+import requests
 from twilio.http.http_client import TwilioHttpClient
 
-proxy_client = TwilioHttpClient()
-proxy_client.session.proxies = {'https': os.environ['https_proxy']}
+proxy_client = TwilioHttpClient() 
+proxy_client.session.proxies = {'https': os.environ['https_proxy']} 
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory+'/secrets/twilio_keys.json') as f:
@@ -23,6 +24,9 @@ def send_sms(message_content, contact):
 
     elif (message_content == "about"):
         response = "\nThank you for using this service. \nThis SMS Service will return distance and traffic time without using any data. \nPlease type 'USAGE' for mor info." 
+
+    elif (message_content == "balance"):
+        response = "\n"+balance()
 
     elif (message_content == "bus home"):
         time = travel_time_api.bus_home()
@@ -65,3 +69,13 @@ def message_decoder(text):
         return(result)
     except:
         return("ERROR")
+
+
+def balance():
+    try:
+        response = requests.get('https://api.twilio.com/2010-04-01/Accounts/'+account_sid+'/Balance.json', auth=(account_sid, auth_token))
+        result = json.loads(response.text)
+        return ("The account balance is: $"+result["balance"])
+    except:
+        return ("The account balance could not be retrieved at this time :(")
+
