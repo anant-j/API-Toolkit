@@ -1,5 +1,4 @@
 import requests
-import time
 import json
 import os
 from datetime import datetime,timedelta
@@ -16,14 +15,14 @@ class TravelTime:
         apikey = api_keys["API_key"]
         self.origin=start
         self.destination=end
-        querystring = {"units":"metric","departure_time":str(int(time.time())),"traffic_model":"best_guess","origins":self.origin,"destinations":self.destination,"key":apikey}
+        querystring = {"units":"metric","departure_time":str(int(current_time().timestamp())),"traffic_model":"best_guess","origins":self.origin,"destinations":self.destination,"key":apikey}
         headers = {
             'cache-control': "no-cache",
             'postman-token': "something"
             }
         response = requests.request("GET", url, headers=headers, params=querystring)
         result = json.loads(response.text)
-        self.current_time=time.strftime("%I:%M:%S")
+        self.current_time=current_time().strftime("%I:%M:%S")
         self.distance = result['rows'][0]['elements'][0]['distance']['text']
         self.traffic_time= result['rows'][0]['elements'][0]['duration_in_traffic']['text']
         self.traffic_time_sec= result['rows'][0]['elements'][0]['duration_in_traffic']['value']
@@ -80,8 +79,7 @@ def gowork():
     else:
         return (str(total_time)+" minutes.\nThe estimated ETA is: "+res_eta)
 
-
-def eta(h,m):
+def current_time():
     res = urlopen('http://just-the-time.appspot.com/')
     result = res.read().strip()
     result_str = result.decode('utf-8')
@@ -90,4 +88,10 @@ def eta(h,m):
     utc = datetime.strptime(result_str, '%Y-%m-%d %H:%M:%S')
     utc = utc.replace(tzinfo=from_zone)
     central = utc.astimezone(to_zone)
+    return (central)
+    # print(int(central.timestamp()))
+
+def eta(h,m):
+    central=current_time()
     return (str(central + timedelta(hours=h,minutes=m))[0:19])
+
