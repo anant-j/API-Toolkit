@@ -6,8 +6,8 @@ import requests
 import timings
 from twilio.http.http_client import TwilioHttpClient
 
-proxy_client = TwilioHttpClient() 
-proxy_client.session.proxies = {'https': os.environ['https_proxy']} 
+proxy_client = TwilioHttpClient()
+proxy_client.session.proxies = {'https': os.environ['https_proxy']}
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory+'/secrets/twilio_keys.json') as f:
@@ -19,12 +19,10 @@ client = Client(account_sid, auth_token, http_client=proxy_client)
 
 
 def send_sms(message_content, contact):
-    message_content=message_content.lower().strip()
-    if (message_content == "usage"):
-        response = "Please format your message in the following format: \n'From: Origin Location - To: Destination Location' \nThank you."
+    message_content = message_content.lower().strip()
 
-    elif (message_content == "about"):
-        response = "\nThank you for using this service. \nThis SMS Service will return distance and traffic time without using any data. \nPlease type 'USAGE' for more info.\nPlease type 'BALANCE' for remaining balance." 
+    if (message_content == "about" or message_content == "usage" or message_content == "help"):
+        response = "\nThank you for using this service. \nThis SMS Service will return distance and traffic time without using any data. \nPlease type:\n 1)'From: Origin Location - To: Destination Location' \n2) 'BALANCE' for remaining balance.\n 3) 'Bus Home' for saved route.\n 4) 'Go to work' for saved route.\n 5) 'Next Bus' for upcoming bus service  \n6) 'Next Train' for upcoming train service. \n Thank You"
 
     elif (message_content == "balance"):
         response = "\n"+balance()
@@ -45,8 +43,8 @@ def send_sms(message_content, contact):
 
     else:
         locations = message_decoder(message_content)
-        if(locations=="ERROR"):
-            response = "Please format your message correctly. Type USAGE for more info!"       
+        if(locations == "ERROR"):
+            response = "Please format your message correctly. Type USAGE for more info!"
         else:
             try:
                 travel = travel_time_api.TravelTime(
@@ -57,7 +55,7 @@ def send_sms(message_content, contact):
                     ". The travel time with traffic right now is: "+traffictime
             except:
                 response = "Travel time cannot be retrieved for the input co-ordinates 😟."
-    
+
     client.messages.create(
         to=contact,
         from_=tw_keys['MY_TWILIO_NUMBER'],
@@ -80,71 +78,79 @@ def message_decoder(text):
 
 def balance():
     try:
-        response = requests.get('https://api.twilio.com/2010-04-01/Accounts/'+account_sid+'/Balance.json', auth=(account_sid, auth_token))
+        response = requests.get('https://api.twilio.com/2010-04-01/Accounts/' +
+                                account_sid+'/Balance.json', auth=(account_sid, auth_token))
         result = json.loads(response.text)
         return ("The account balance is: $"+result["balance"])
     except:
         return ("The account balance could not be retrieved at this time :(")
 
+
 def bus_timing():
-    fs="\nNext Bus:\n"
-    time=""
-    b15mt=timings.b15mt
-    b16th=timings.b16th
-    b16ht=timings.b16ht
+    fs = "\nNext Bus:\n"
+    time = ""
+    b15mt = timings.b15mt
+    b16th = timings.b16th
+    b16ht = timings.b16ht
     try:
-        curr_time=str(travel_time_api.current_time().time())[0:5]
+        curr_time = str(travel_time_api.current_time().time())[0:5]
     except:
         return("Time Fetching Error :(")
     try:
-        r1=(list(b15mt.keys()))
-        for time in r1: 
-            if time>=curr_time:
-                fs=fs+"15: McMaster - Toronto @ "+time+"-"+str(b15mt[time])+"\n"
-                time=""
-                break    
-        r2=(list(b16th.keys()))
-        for time in r2: 
-            if time>=curr_time:
-                fs=fs+"16: Toronto - Hamilton @ "+time+"-"+str(b16th[time])+"\n"
-                time=""
-                break    
-        r3=(list(b16ht.keys()))
-        for time in r3: 
-            if time>=curr_time:
-                fs=fs+"16: Hamilton - Toronto @ "+time+"-"+str(b16ht[time])+"\n"
-                time=""
-                break    
-        if fs=="\nNext Bus:\n":
-            return("No Bus Available")   
+        r1 = (list(b15mt.keys()))
+        for time in r1:
+            if time >= curr_time:
+                fs = fs+"15: McMaster - Toronto @ " + \
+                    time+"-"+str(b15mt[time])+"\n"
+                time = ""
+                break
+        r2 = (list(b16th.keys()))
+        for time in r2:
+            if time >= curr_time:
+                fs = fs+"16: Toronto - Hamilton @ " + \
+                    time+"-"+str(b16th[time])+"\n"
+                time = ""
+                break
+        r3 = (list(b16ht.keys()))
+        for time in r3:
+            if time >= curr_time:
+                fs = fs+"16: Hamilton - Toronto @ " + \
+                    time+"-"+str(b16ht[time])+"\n"
+                time = ""
+                break
+        if fs == "\nNext Bus:\n":
+            return("No Bus Available")
         return(fs)
     except:
         return("Bus timings could not be retrieved :(")
 
+
 def train_timing():
-    fs="\nNext Train:\n"
-    time=""
-    tLWht=timings.tLWht
-    tLEth=timings.tLEth
+    fs = "\nNext Train:\n"
+    time = ""
+    tLWht = timings.tLWht
+    tLEth = timings.tLEth
     try:
-        curr_time=str(travel_time_api.current_time().time())[0:5]
+        curr_time = str(travel_time_api.current_time().time())[0:5]
     except:
         return("Time Fetching Error :(")
     try:
-        r1=(list(tLWht.keys()))
-        for time in r1: 
-            if time>=curr_time:
-                fs=fs+"LW: Hamilton - Toronto @ "+time+"-"+str(tLWht[time])+"\n"
-                time=""
-                break    
-        r2=(list(tLEth.keys()))
-        for time in r2: 
-            if time>=curr_time:
-                fs=fs+"LE: Toronto - Hamilton @ "+time+"-"+str(tLEth[time])+"\n"
-                time=""
+        r1 = (list(tLWht.keys()))
+        for time in r1:
+            if time >= curr_time:
+                fs = fs+"LW: Hamilton - Toronto @ " + \
+                    time+"-"+str(tLWht[time])+"\n"
+                time = ""
                 break
-        if fs=="\nNext Train:\n":
-            return("No Trains Available")       
+        r2 = (list(tLEth.keys()))
+        for time in r2:
+            if time >= curr_time:
+                fs = fs+"LE: Toronto - Hamilton @ " + \
+                    time+"-"+str(tLEth[time])+"\n"
+                time = ""
+                break
+        if fs == "\nNext Train:\n":
+            return("No Trains Available")
         return(fs)
     except:
         return("Bus timings could not be retrieved :(")
