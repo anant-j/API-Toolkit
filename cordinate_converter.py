@@ -27,11 +27,12 @@ def coordinates(inp):
         ar=ar.replace("″ S","″S")
         ar=ar.replace("″ E","″E")
         ar=ar.replace("  ",",")
+        ar=ar.replace(" ",",")
         ar=ar.split(",")
-        print(ar)
         first=ar[0]
         second=ar[1]
         return(parse_dms(first),parse_dms(second))        
     except Exception as e:
         return ("An Error Occurred",e)
         
+print(coordinates("1°2′3″ N 4°5′6″ W"))
