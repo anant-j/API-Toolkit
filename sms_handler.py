@@ -161,5 +161,3 @@ def train_timing():
     except:
         return("Bus timings could not be retrieved :(")
 
-
-send_sms("43°15′4″ N  79°55′21″ W","2897755531")
