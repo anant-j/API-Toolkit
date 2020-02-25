@@ -69,8 +69,7 @@ def gowork():
         else:
             res_hour = hour + " hour"
         minute=total_time[2:-3]
-        res_eta=eta(int(str(hour)),int(str(minute)))
-        print(res_eta)        
+        res_eta=eta(int(str(hour)),int(str(minute)))   
         if int(minute) > 1:
             res_minute = minute +" minutes"
         else:
@@ -91,7 +90,24 @@ def current_time():
     return (central)
     # print(int(central.timestamp()))
 
+
 def eta(h,m):
     central=current_time()
     return (str(central + timedelta(hours=h,minutes=m))[0:19])
 
+def coordinater(cordinates):
+    cordinate_str=(str(cordinates[0])[0:10]+", "+str(cordinates[1])[0:10])
+    res=""
+    try:
+        Work=TravelTime(cordinate_str,"33 Yonge Street Toronto")
+        res+="Distance To Work: "+Work.get_distance()+"\n"
+        res+="Time To Work: "+Work.get_traffictime()+"\n"
+    except:
+        res+="Could not get distance to work"
+    try:
+        Home=TravelTime(cordinate_str,"229 Emerson Street, Hamilton, Ontario")
+        res+="Distance To Home: "+Home.get_distance()+"\n"
+        res+="Time To Home: "+Home.get_traffictime()+"\n"
+    except:
+        res+="Could not get distance to home"    
+    return (res)
