@@ -43,10 +43,12 @@ def send_sms(message_content, contact):
     elif (message_content == "next train"):
         response = train_timing()
 
-    elif ("°" and "′" and "″" and "n" and "w" in message_content):
+    elif ("°" and "′" and "″" and ("n" or "w" or "e" or "s") in message_content):
         val=cordinate_converter.coordinates(original_message)
-        response = travel_time_api.coordinater(val)
-
+        if (val!="An Error Occurred"):
+            response = travel_time_api.coordinater(val)
+        else:
+            response = "Could not process request. Please enter co-ordinates in format: x°y′z″ N  a°b′c″ W"
     else:
         locations = message_decoder(message_content)
         if(locations == "ERROR"):
