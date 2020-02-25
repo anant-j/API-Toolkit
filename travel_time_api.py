@@ -97,7 +97,7 @@ def eta(h,m):
 
 def coordinater(cordinates):
     cordinate_str=(str(cordinates[0])[0:10]+", "+str(cordinates[1])[0:10])
-    res=""
+    res=".\n"
     try:
         Work=TravelTime(cordinate_str,"33 Yonge Street Toronto")
         res+="Distance To Work: "+Work.get_distance()+"\n"
