@@ -4,10 +4,11 @@ import travel_time_api
 import os
 import requests
 import timings
+import cordinate_converter
 from twilio.http.http_client import TwilioHttpClient
 
 proxy_client = TwilioHttpClient()
-proxy_client.session.proxies = {'https': os.environ['https_proxy']}
+# proxy_client.session.proxies = {'https': os.environ['https_proxy']}
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory+'/secrets/twilio_keys.json') as f:
@@ -19,6 +20,7 @@ client = Client(account_sid, auth_token, http_client=proxy_client)
 
 
 def send_sms(message_content, contact):
+    original_message=message_content
     message_content = message_content.lower().strip()
 
     if (message_content == "about" or message_content == "usage" or message_content == "help"):
@@ -40,6 +42,10 @@ def send_sms(message_content, contact):
 
     elif (message_content == "next train"):
         response = train_timing()
+
+    elif ("°" and "′" and "″" and "n" and "w" in message_content):
+        val=cordinate_converter.coordinates(original_message)
+        response = travel_time_api.coordinater(val)
 
     else:
         locations = message_decoder(message_content)
@@ -154,3 +160,6 @@ def train_timing():
         return(fs)
     except:
         return("Bus timings could not be retrieved :(")
+
+
+send_sms("43°15′4″ N  79°55′21″ W","2897755531")
