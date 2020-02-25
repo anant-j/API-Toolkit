@@ -24,7 +24,7 @@ def send_sms(message_content, contact):
     message_content = message_content.lower().strip()
 
     if (message_content == "about" or message_content == "usage" or message_content == "help"):
-        response = "\nThank you for using this service. \nThis SMS Service will return distance and traffic time without using any data. \nPlease type:\n 1)'From: Origin Location - To: Destination Location' \n2) 'BALANCE' for remaining balance.\n 3) 'Bus Home' for saved route.\n 4) 'Go to work' for saved route.\n 5) 'Next Bus' for upcoming bus service  \n6) 'Next Train' for upcoming train service. \n Thank You"
+        response = "\nThank you for using this service. \nThis SMS Service will return distance and traffic time without using any data. \nPlease type:\n 1)'From: Origin Location - To: Destination Location' \n2)x°y′z″ N  a°b′c″ W \n3) 'BALANCE' for remaining balance.\n 4) 'Bus Home' for saved route.\n 5) 'Go to work' for saved route.\n 6) 'Next Bus' for upcoming bus service  \n7) 'Next Train' for upcoming train service. \n Thank You"
 
     elif (message_content == "balance"):
         response = "\n"+balance()
