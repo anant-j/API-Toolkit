@@ -73,9 +73,6 @@ def get_ip(req):
 
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def add():
-    if(my_directory == "/home/stagingapi/mysite"):
-        return("Blocked. This is is not available on the staging API.", 401)
-    # https://scotch.io/bar-talk/processing-incoming-request-data-in-flask
     req_data = request.get_json()
     Page = req_data['Page']
     Ip_address = get_ip(request)
@@ -104,8 +101,6 @@ def add():
 
 @app.route('/pbdel', methods=['GET'])
 def pbdelete():
-    if(my_directory == "/home/stagingapi/mysite"):
-        return("Blocked. This is is not available on the staging API.", 401)
     AuthCode = request.args.get('auth')
     if(AuthCode == Auth_Token):
         return(pushbullet.delete())
@@ -117,8 +112,6 @@ def pbdelete():
 
 @app.route("/sms", methods=["POST"])
 def sms_reply():
-    if(my_directory == "/home/stagingapi/mysite"):
-        return("Blocked. This is is not available on the staging API.", 401)
     message_content = request.values.get('Body', None)
     contact = request.values.get('From', None)
     try:
@@ -156,10 +149,6 @@ def webhook():
         return json.dumps({'msg': 'Ping Successful!'})
     if event != "push":
         return json.dumps({'msg': "Wrong event type"})
-
-    if(my_directory != "/home/stagingapi/mysite"):
-        if payload['ref'] != 'refs/heads/master':
-            return json.dumps({'msg': 'Not master; ignoring'})
     try:
         repo = git.Repo(my_directory)
         branch = str(payload['ref'][11:])
