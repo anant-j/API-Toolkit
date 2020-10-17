@@ -3,3 +3,4 @@ flask
 flask-cors
 twilio
 request
+ipinfo

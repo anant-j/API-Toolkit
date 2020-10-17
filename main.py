@@ -1,9 +1,11 @@
 # https://cloud.google.com/community/tutorials/building-flask-api-with-cloud-firestore-and-deploying-to-cloud-run
-from flask import Flask, request, redirect, send_from_directory, abort
+from flask import Flask, request, redirect, send_from_directory, abort, jsonify
 from flask_cors import CORS
 from firebase_admin import credentials, firestore, initialize_app
 from twilio.twiml.messaging_response import MessagingResponse
+import ipinfo
 import os
+import requests
 import sms_handler
 import pushbullet
 import github_verify
@@ -18,7 +20,8 @@ Fallback = params.Fallback
 Statuspage = params.Statuspage
 Auth_Token = params.Auth_Token
 Auth_Host = params.Auth_Host
-
+IP_access_token = params.Ipinfo_Token
+IP_handler = ipinfo.getHandler(IP_access_token)
 # Initialize Flask App
 app = Flask(__name__)
 cors = CORS(app)
@@ -48,6 +51,16 @@ def health():
 def gitstats():
     return (str(file_handler.read()), 200)
 
+
+def get_ip(req):
+    try:
+        if req.environ.get('HTTP_X_FORWARDED_FOR') is None:
+            return req.environ['REMOTE_ADDR']
+        else:
+            return req.environ['HTTP_X_FORWARDED_FOR']
+    except Exception:
+        return 0
+
 # Core API to Add Data to Firestore + Push messages via Pushbullet
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def add():
@@ -56,19 +69,19 @@ def add():
     # https://scotch.io/bar-talk/processing-incoming-request-data-in-flask
     req_data = request.get_json()
     Page = req_data['Page']
-    Ip = req_data['Ip Address']
-    # Ip_details = req_data['Ip Details']
+    Ip_address = get_ip(request)
+    Ip_details = IP_handler.getDetails(Ip_address)
+    req_data["Ip Address"]= Ip_address
+    # req_data["Ip_details"]=Ip_details.all
+    req_data.update(Ip_details.all)
     Time = req_data['Date & Time']
     Fid = str(req_data['Fingerprint Id'])
-
     # Hostname Verification to prevent spoofing
-    if(req_data['Host'] == Auth_Host):
-        if(Fid in Known_Users): # Check if User is already registered
-            Fid = Known_Users[Fid]
-        else:
-            pushbullet.send_analytics(req_data)  # Send Pushbullet Notification ( Function Call ) 
+    if(request.environ['HTTP_ORIGIN'] == Auth_Host):
+        if(Fid not in Known_Users): # Check if User is already registered
+            pushbullet.send_analytics(req_data)  # Send Pushbullet Notification ( Function Call )
         try:
-            db.collection(Page).document(Fid).collection("IP: " + Ip).document(Time).set(req_data)  # Add data to Firebase Firestore
+            db.collection(Page).document(Fid).collection("IP: " + Ip_address).document(Time).set(req_data)  # Add data to Firebase Firestore
             return ("Sent", 200)
         except Exception as e:
             return (":( An Error Occured while sending data to Firebase:", {e})
@@ -105,7 +118,7 @@ def sms_reply():
 @app.route('/form', methods=['POST'])
 def formdata():
     try:
-        data=request.get_json(force=True) 
+        data=request.get_json(force=True)
         pushbullet.send_form(data)
         db.collection("Form").document(data["email"]).set(data)  # Add data to Firebase Firestore
         return("Form sent")

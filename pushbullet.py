@@ -12,8 +12,8 @@ DEVID = pbkeys['DEVID']
 def send_analytics(req):
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
-        "body": "Carrier: " + req["Carrier"] + "\nOS: " + req["Operating System"] + "\nBrowser: " + req["Browser"] + "\nDate-Time: " + req["Date & Time"] + "\nIP: " + req["Ip Address"],
-        "title": "Someone from " + req["City"] + ", " + req["Country"] + " visited your Website @" + req["Page"],
+        "body": "Carrier: " + req["org"] + "\nOS: " + req["Operating System"] + "\nBrowser: " + req["Browser"] + "\nDate-Time: " + req["Date & Time"] + "\nIP: " + req["Ip Address"],
+        "title": "Someone from " + req["city"] + ", " + req["country_name"] + " visited your Website @" + req["Page"],
         "device_iden": DEVID,
         "type": "note"}
     headers = {'Access-Token': PBKEY, 'content-type': 'application/json'}
