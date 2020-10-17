@@ -2,5 +2,4 @@ firebase-admin
 flask
 flask-cors
 twilio
-request
 ipinfo
