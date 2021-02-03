@@ -35,4 +35,3 @@ def coordinates(inp):
     except Exception as e:
         return ("An Error Occurred",e)
         
-print(coordinates("1°2′3″ N 4°5′6″ W"))
