@@ -14,7 +14,6 @@ import params
 import file_handler
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
-Known_Users = params.Known_Users
 Fallback = params.Fallback
 Statuspage = params.Statuspage
 Auth_Token = params.Auth_Token
@@ -84,10 +83,9 @@ def add():
     Fid = str(req_data['Fingerprint Id'])
     # Hostname Verification to prevent spoofing
     if(request.environ['HTTP_ORIGIN'] == Auth_Host):
-        if(Fid not in Known_Users):  # Check if User is already registered
+        try:
             # Send Pushbullet Notification ( Function Call )
             pushbullet.send_analytics(req_data)
-        try:
             db.collection(Page).document(Fid).collection(
                 "IP: " + Ip_address).document(Time).set(req_data)  # Add data to Firebase Firestore
             return ("Sent", 200)
