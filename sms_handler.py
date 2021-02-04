@@ -1,10 +1,12 @@
-from twilio.rest import Client
 import json
-import travel_handler as traffic
 import os
+
 import requests
-import cordinate_converter
 from twilio.http.http_client import TwilioHttpClient
+from twilio.rest import Client
+
+import cordinate_converter
+import travel_handler as traffic
 
 proxy_client = TwilioHttpClient()
 if "https_proxy" in os.environ:
@@ -50,12 +52,12 @@ def send(message_content, contact):
                 response = generate_route(locations['from'], locations['to'])
             except BaseException:
                 response = "Travel time cannot be retrieved for the input co-ordinates 😟."
-    return(response)
-    # client.messages.create(
-    #     to=contact,
-    #     from_=from_number,
-    #     body=response
-    # )
+
+    client.messages.create(
+        to=contact,
+        from_=from_number,
+        body=response
+    )
 
 
 def message_decoder(text):
