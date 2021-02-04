@@ -1,8 +1,12 @@
 import re
 
+# Converts co-ordinates to latitude and longitude
 # Degrees, minutes, seconds <-> Decimal Degrees
+# Code from
+# https://stackoverflow.com/questions/2579535/convert-dd-decimal-degrees-to-dms-degrees-minutes-seconds-in-python
 
 
+# Converts Degrees, minutes, seconds to Decimal Degrees
 def dms2dd(degrees, minutes, seconds, direction):
     dd = float(degrees) + float(minutes) / 60 + float(seconds) / (60 * 60)
     if direction == 'W' or direction == 'S':
@@ -10,6 +14,7 @@ def dms2dd(degrees, minutes, seconds, direction):
     return dd
 
 
+# Converts Decimal Degrees to Degrees, minutes, seconds
 def dd2dms(deg):
     d = int(deg)
     md = abs(deg - d) * 60
@@ -18,12 +23,14 @@ def dd2dms(deg):
     return [d, m, sd]
 
 
+# Parses Latitude/Longitude
 def parse_dms(dms):
     parts = re.split(r'[^\d\w]+', dms)
     lat = dms2dd(parts[0], parts[1], parts[2], parts[3])
     return (lat)
 
 
+# Converts co-ordinates from iOS compass application to latitude and longitude
 def coordinates(inp):
     try:
         ar = inp

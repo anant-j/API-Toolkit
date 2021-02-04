@@ -12,7 +12,7 @@ def test_staging_upload():
         assert(False)
 
     try:
-        if(branch == "master"):
+        if(branch == "master" or branch == "branch"):
             assert(True)
         else:
             git = requests.get(

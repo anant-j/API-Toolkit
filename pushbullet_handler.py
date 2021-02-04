@@ -9,6 +9,7 @@ PBKEY = api_keys["Pushbullet"]["Key"]
 DEVID = api_keys["Pushbullet"]["DeviceID"]
 
 
+# Sends analytics data to Pushbullet API
 def send_analytics(req):
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
@@ -37,6 +38,7 @@ def send_analytics(req):
         return (":( An error occurred while sending data to Pushbullet:", {e})
 
 
+# Sends Form data to Pushbullet API
 def send_form(formData):
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
@@ -58,6 +60,7 @@ def send_form(formData):
         return (":( An error occurred while sending data to Pushbullet:", {e})
 
 
+# Deletes all notifications via Pushbullet API
 def delete():
     url = "https://api.pushbullet.com/v2/pushes"
     headers = {'Access-Token': PBKEY}

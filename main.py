@@ -164,8 +164,10 @@ def form():
 @app.route('/update_server', methods=['POST'])
 def webhook():
     event = request.headers.get('X-GitHub-Event')
+    # Get payload from GitHub webhook request
     payload = request.get_json()
     x_hub_signature = request.headers.get('X-Hub-Signature')
+    # Check if signature is valid
     if not github.is_valid_signature(x_hub_signature, request.data):
         print('Deploy signature failed: {sig}'.format(sig=x_hub_signature))
         abort(401)
@@ -173,6 +175,7 @@ def webhook():
         return json.dumps({'msg': 'Ping Successful!'})
     if event != "push":
         return json.dumps({'msg': "Wrong event type"})
+    # Checking that branch is master for non staging deployments 
     if(my_directory != "/home/stagingapi/mysite"):
         if payload['ref'] != 'refs/heads/master':
             return json.dumps({'msg': 'Not master; ignoring'})
