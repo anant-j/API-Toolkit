@@ -69,9 +69,9 @@ def delete():
             ":( An error occurred while deleting data from Pushbullet:", {e})
 
 
-def list_devices():
-    headers = {'Access-Token': PBKEY}
-    response = requests.get(
-        'https://api.pushbullet.com/v2/devices',
-        headers=headers)
-    print(response.text)
+# def list_devices():
+#     headers = {'Access-Token': PBKEY}
+#     response = requests.get(
+#         'https://api.pushbullet.com/v2/devices',
+#         headers=headers)
+#     print(response.text)
