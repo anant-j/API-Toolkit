@@ -81,7 +81,6 @@ def add():
     Ip_address = get_ip(request)
     Ip_details = IP_handler.getDetails(Ip_address)
     req_data["Ip Address"] = Ip_address
-    # req_data["Ip_details"]=Ip_details.all
     req_data.update(Ip_details.all)
     Time = req_data['Date & Time']
     Fid = str(req_data['Fingerprint Id'])
