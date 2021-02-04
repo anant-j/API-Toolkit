@@ -1,7 +1,7 @@
 import requests
 import json 
 
-deployment = requests.get('http://anantj24.pythonanywhere.com/git')
+deployment = requests.get('http://stagingapi.pythonanywhere.com/git')
 if deployment.status_code==200:
     dep_result=deployment.text.split(",")
     branch=dep_result[0]
