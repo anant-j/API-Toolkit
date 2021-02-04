@@ -3,7 +3,7 @@ import requests
 import os
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
-with open(my_directory+'/secrets/pushbullet_keys.json') as f:
+with open(my_directory + '/secrets/pushbullet_keys.json') as f:
     pbkeys = json.load(f)
 PBKEY = pbkeys['PBKEY']
 DEVID = pbkeys['DEVID']
@@ -12,8 +12,22 @@ DEVID = pbkeys['DEVID']
 def send_analytics(req):
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
-        "body": "Carrier: " + req["org"] + "\nOS: " + req["Operating System"] + "\nBrowser: " + req["Browser"] + "\nDate-Time: " + req["Date & Time"] + "\nIP: " + req["Ip Address"],
-        "title": "Someone from " + req["city"] + ", " + req["country_name"] + " visited your Website @" + req["Page"],
+        "body": "Carrier: " +
+        req["org"] +
+        "\nOS: " +
+        req["Operating System"] +
+        "\nBrowser: " +
+        req["Browser"] +
+        "\nDate-Time: " +
+        req["Date & Time"] +
+        "\nIP: " +
+        req["Ip Address"],
+        "title": "Someone from " +
+        req["city"] +
+        ", " +
+        req["country_name"] +
+        " visited your Website @" +
+        req["Page"],
         "device_iden": DEVID,
         "type": "note"}
     headers = {'Access-Token': PBKEY, 'content-type': 'application/json'}
@@ -22,10 +36,18 @@ def send_analytics(req):
     except Exception as e:
         return (":( An error occurred while sending data to Pushbullet:", {e})
 
+
 def send_form(formData):
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
-        "body": "Name: " + formData["name"] + "\nEmail: " + formData["email"] + "\nAbout: " + formData["about"] + "\nMessage: " + formData["message"],
+        "body": "Name: " +
+        formData["name"] +
+        "\nEmail: " +
+        formData["email"] +
+        "\nAbout: " +
+        formData["about"] +
+        "\nMessage: " +
+        formData["message"],
         "title": "Someone sent you a message via contact form",
         "device_iden": DEVID,
         "type": "note"}
@@ -43,10 +65,13 @@ def delete():
         requests.delete(url, headers=headers)
         return ("Deleted All Messages on Pushbullet", 200)
     except Exception as e:
-        return (":( An error occurred while deleting data from Pushbullet:", {e})
+        return (
+            ":( An error occurred while deleting data from Pushbullet:", {e})
+
 
 def list_devices():
     headers = {'Access-Token': PBKEY}
-    response = requests.get('https://api.pushbullet.com/v2/devices', headers=headers)
+    response = requests.get(
+        'https://api.pushbullet.com/v2/devices',
+        headers=headers)
     print(response.text)
-
