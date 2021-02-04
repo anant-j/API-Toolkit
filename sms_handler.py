@@ -8,7 +8,8 @@ import cordinate_converter
 from twilio.http.http_client import TwilioHttpClient
 
 proxy_client = TwilioHttpClient()
-proxy_client.session.proxies = {'https': os.environ['https_proxy']}
+if "https_proxy" in os.environ:
+    proxy_client.session.proxies = {'https': os.environ['https_proxy']}
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory + '/secrets/keys.json') as f:
