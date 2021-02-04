@@ -20,39 +20,41 @@ Auth_Token = params.Auth_Token
 Auth_Host = params.Auth_Host
 IP_access_token = params.Ipinfo_Token
 IP_handler = ipinfo.getHandler(IP_access_token)
+
 # Initialize Flask App
 app = Flask(__name__)
 cors = CORS(app)
 
 # Initialize Firestore DB
-cred = credentials.Certificate(my_directory+'/secrets/firebase_keys.json')
+cred = credentials.Certificate(my_directory + '/secrets/firebase_keys.json')
 default_app = initialize_app(cred)
 db = firestore.client()
 
+
 # Basic API Route
-
-
 @app.route('/')
 def redirected():
     return redirect(Fallback, code=302)
 
+
 # Load Favicon
-
-
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(
+        os.path.join(
+            app.root_path,
+            'static'),
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon')
+
 
 # Health Check Route
-
-
 @app.route('/status')
 def health():
     return ("UP", 200)
 
+
 # Health Check Route
-
-
 @app.route('/git')
 def gitstats():
     return (str(file_handler.read()), 200)
@@ -67,9 +69,8 @@ def get_ip(req):
     except Exception:
         return 0
 
+
 # Core API to Add Data to Firestore + Push messages via Pushbullet
-
-
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def add():
     if(my_directory == "/home/stagingapi/mysite"):
@@ -90,16 +91,17 @@ def add():
             # Send Pushbullet Notification ( Function Call )
             pushbullet.send_analytics(req_data)
             db.collection(Page).document(Fid).collection(
-                "IP: " + Ip_address).document(Time).set(req_data)  # Add data to Firebase Firestore
+                # Add data to Firebase Firestore
+                "IP: " + Ip_address).document(Time).set(req_data)
             return ("Sent", 200)
         except Exception as e:
             return (":( An Error Occured while sending data to Firebase:", {e})
     else:  # If user is unauthorized to call the api
         return ("Unauthorized User", 401)
 
-# Route to Delete All Pushbullet Notifications. # Route to Shut Down API. Uses 256-bit key encryption.
 
-
+# Route to Delete All Pushbullet Notifications. # Route to Shut Down API.
+# Uses 256-bit key encryption.
 @app.route('/pbdel', methods=['GET'])
 def pbdelete():
     if(my_directory == "/home/stagingapi/mysite"):
@@ -110,9 +112,8 @@ def pbdelete():
     else:
         return ("Unauthorized User", 401)
 
+
 # Route for SMS. Uses Twilio API
-
-
 @app.route("/sms", methods=["POST"])
 def sms_reply():
     if(my_directory == "/home/stagingapi/mysite"):
@@ -136,12 +137,12 @@ def formdata():
         db.collection("Form").document(data["email"]).set(
             data)  # Add data to Firebase Firestore
         return("Form sent")
-    except:
+    except BaseException:
         return("Form Could not be sent", 500)
 
-# CI with GitHub https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 
-
+# CI with GitHub
+# https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
 def webhook():
     event = request.headers.get('X-GitHub-Event')
@@ -164,29 +165,27 @@ def webhook():
         repo.git.reset('--hard')
         origin = repo.remotes.origin
         origin.pull(branch)
-        file_handler.write(branch+","+str(payload['after']))
+        file_handler.write(branch + "," + str(payload['after']))
         return 'Updated PythonAnywhere successfully', 200
-    except:
+    except BaseException:
         try:
             repo = git.Repo(my_directory)
             repo.git.reset('--hard')
             origin = repo.remotes.origin
             origin.pull('master')
-            file_handler.write("master"+","+str(payload['after']))
+            file_handler.write("master" + "," + str(payload['after']))
             return 'Updated PythonAnywhere successfully(Master branch)', 200
         except Exception as e:
             return (str(e))
 
+
 # Handle Internal Server Errors
-
-
 @app.errorhandler(500)
 def e500(e):
     return ("Internal Server Error", 500)
 
+
 # If user enters wrong api link -> Redirect to main website
-
-
 @app.errorhandler(404)
 def e404(e):
     return redirect(Fallback, code=302)
