@@ -31,7 +31,7 @@ default_app = initialize_app(cred)
 db = firestore.client()
 
 
-# Basic API Route
+# Default API Endpoint
 @app.route('/')
 def redirected():
     return redirect(Fallback, code=302)
@@ -48,13 +48,13 @@ def favicon():
         mimetype='image/vnd.microsoft.icon')
 
 
-# Health Check Route
+# Health Check Endpoint
 @app.route('/status')
 def health():
     return ("UP", 200)
 
 
-# Git Branch check Route
+# Git Branch check Endpoint
 @app.route('/git')
 def gitstats():
     return (str(file_handler.read()), 200)
@@ -97,7 +97,7 @@ def add():
         return ("Unauthorized User", 401)
 
 
-# Route for SMS. Uses Twilio API
+# Endpoint for SMS. Uses Twilio API
 @app.route("/sms", methods=["POST"])
 def sms_reply():
     message_content = request.values.get('Body', None)
@@ -111,7 +111,7 @@ def sms_reply():
         return ("An Error Occured while sending SMS", e)
 
 
-# Route to Delete All Pushbullet Notifications
+# Endpoint to Delete All Pushbullet Notifications
 # Uses 256-bit key encryption.
 @app.route('/pbdel', methods=['GET'])
 def pbdelete():
