@@ -8,13 +8,15 @@ import cordinate_converter
 from twilio.http.http_client import TwilioHttpClient
 
 proxy_client = TwilioHttpClient()
-proxy_client.session.proxies = {'https': os.environ['https_proxy']}
+# proxy_client.session.proxies = {'https': os.environ['https_proxy']}
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
-with open(my_directory + '/secrets/twilio_keys.json') as f:
-    tw_keys = json.load(f)
-account_sid = tw_keys['MY_ACCOUNT_SID']
-auth_token = tw_keys['MY_AUTH_TOKEN']
+with open(my_directory + '/secrets/keys.json') as f:
+    api_keys = json.load(f)
+
+account_sid = api_keys["Twilio"]['MY_ACCOUNT_SID']
+auth_token = api_keys["Twilio"]['MY_AUTH_TOKEN']
+from_number = api_keys["Twilio"]['MY_TWILIO_NUMBER']
 
 client = Client(account_sid, auth_token, http_client=proxy_client)
 
@@ -67,7 +69,7 @@ def send_sms(message_content, contact):
 
     client.messages.create(
         to=contact,
-        from_=tw_keys['MY_TWILIO_NUMBER'],
+        from_=from_number,
         body=response
     )
 

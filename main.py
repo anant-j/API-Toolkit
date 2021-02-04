@@ -10,15 +10,15 @@ import pushbullet
 import github_verify
 import git
 import json
-import params
 import file_handler
 my_directory = os.path.dirname(os.path.abspath(__file__))
+with open(my_directory + '/secrets/keys.json') as f:
+    api_keys = json.load(f)
 
-Fallback = params.Fallback
-Statuspage = params.Statuspage
-Auth_Token = params.Auth_Token
-Auth_Host = params.Auth_Host
-IP_access_token = params.Ipinfo_Token
+Fallback = api_keys["Hosts"]["Fallback"]
+Pushbullet_Delete_Secret = api_keys["Pushbullet"]["Delete"]
+Expected_Origin = api_keys["Hosts"]["Origin"]
+IP_access_token = api_keys["IpInfo"]
 IP_handler = ipinfo.getHandler(IP_access_token)
 
 # Initialize Flask App
@@ -83,7 +83,7 @@ def add():
     Time = req_data['Date & Time']
     Fid = str(req_data['Fingerprint Id'])
     # Hostname Verification to prevent spoofing
-    if(request.environ['HTTP_ORIGIN'] == Auth_Host):
+    if(request.environ['HTTP_ORIGIN'] == Expected_Origin):
         try:
             # Send Pushbullet Notification ( Function Call )
             pushbullet.send_analytics(req_data)
@@ -116,7 +116,7 @@ def sms_reply():
 @app.route('/pbdel', methods=['GET'])
 def pbdelete():
     AuthCode = request.args.get('auth')
-    if(AuthCode == Auth_Token):
+    if(AuthCode == Pushbullet_Delete_Secret):
         return(pushbullet.delete())
     else:
         return ("Unauthorized User", 401)

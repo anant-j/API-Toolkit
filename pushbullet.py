@@ -3,10 +3,10 @@ import requests
 import os
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
-with open(my_directory + '/secrets/pushbullet_keys.json') as f:
-    pbkeys = json.load(f)
-PBKEY = pbkeys['PBKEY']
-DEVID = pbkeys['DEVID']
+with open(my_directory + '/secrets/keys.json') as f:
+    api_keys = json.load(f)
+PBKEY = api_keys["Pushbullet"]["Key"]
+DEVID = api_keys["Pushbullet"]["DeviceID"]
 
 
 def send_analytics(req):

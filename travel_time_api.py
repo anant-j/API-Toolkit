@@ -6,14 +6,14 @@ from dateutil import tz
 from urllib.request import urlopen
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
-with open(my_directory + '/secrets/distance_matrix_keys.json') as f:
+with open(my_directory + '/secrets/keys.json') as f:
     api_keys = json.load(f)
 
 
 class TravelTime:
     def __init__(self, start, end):
         url = "https://maps.googleapis.com/maps/api/distancematrix/json"
-        apikey = api_keys["API_key"]
+        apikey = api_keys["Google_Distance_Matrix"]
         self.origin = start
         self.destination = end
         querystring = {"units": "metric",

@@ -2,10 +2,12 @@ import hmac
 import hashlib
 import os
 import json
+
 my_directory = os.path.dirname(os.path.abspath(__file__))
-with open(my_directory+'/secrets/github_webhook.json') as f:
-    github_key = json.load(f)
-webhook_key=github_key['key']
+with open(my_directory + '/secrets/keys.json') as f:
+    api_keys = json.load(f)
+webhook_key = api_keys['Github_Webhook']
+
 
 def is_valid_signature(x_hub_signature, data):
     # x_hub_signature and data are from the webhook payload
