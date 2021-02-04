@@ -54,7 +54,7 @@ def health():
     return ("UP", 200)
 
 
-# Health Check Route
+# Git Branch check Route
 @app.route('/git')
 def gitstats():
     return (str(file_handler.read()), 200)
@@ -188,3 +188,7 @@ def e500(e):
 @app.errorhandler(404)
 def e404(e):
     return redirect(Fallback, code=302)
+
+
+# if (__name__ == "__main__"):
+#     app.run(debug=True)
