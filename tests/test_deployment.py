@@ -1,6 +1,5 @@
 import requests
 import json
-import pytest
 
 deployment = requests.get('http://stagingapi.pythonanywhere.com/git')
 if deployment.status_code == 200:
