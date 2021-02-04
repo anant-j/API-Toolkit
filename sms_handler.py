@@ -47,7 +47,7 @@ def send(message_content, contact):
     elif (message_content == "next train"):
         response = train_timing()
 
-    elif ("°" and "′" and "″" and ("n" or "w" or "e" or "s") in message_content):
+    elif ("°" in message_content and "′" in message_content and "″" in message_content and ("n" in message_content or "w" in message_content or "e" in message_content or "s" in message_content)):
         val = cordinate_converter.coordinates(original_message)
         if (val != "An Error Occurred"):
             response = travel_time_api.coordinater(val)
@@ -82,7 +82,8 @@ def message_decoder(text):
         for element in first_split:
             element = element.strip()
             el = element.split(":")
-            result[el[0]] = el[1].strip()
+            result[el[0].strip()] = el[1].strip()
+        print(result)
         return(result)
     except BaseException:
         return("ERROR")
