@@ -73,8 +73,6 @@ def get_ip(req):
 # Core API to Add Data to Firestore + Push messages via Pushbullet
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def add():
-    if(my_directory == "/home/stagingapi/mysite"):
-        return("Blocked. This is is not available on the staging API.", 401)
     # https://scotch.io/bar-talk/processing-incoming-request-data-in-flask
     req_data = request.get_json()
     Page = req_data['Page']
@@ -89,8 +87,8 @@ def add():
         try:
             # Send Pushbullet Notification ( Function Call )
             pushbullet.send_analytics(req_data)
+            # Add data to Firebase Firestore
             db.collection(Page).document(Fid).collection(
-                # Add data to Firebase Firestore
                 "IP: " + Ip_address).document(Time).set(req_data)
             return ("Sent", 200)
         except Exception as e:
@@ -99,24 +97,9 @@ def add():
         return ("Unauthorized User", 401)
 
 
-# Route to Delete All Pushbullet Notifications. # Route to Shut Down API.
-# Uses 256-bit key encryption.
-@app.route('/pbdel', methods=['GET'])
-def pbdelete():
-    if(my_directory == "/home/stagingapi/mysite"):
-        return("Blocked. This is is not available on the staging API.", 401)
-    AuthCode = request.args.get('auth')
-    if(AuthCode == Auth_Token):
-        return(pushbullet.delete())
-    else:
-        return ("Unauthorized User", 401)
-
-
 # Route for SMS. Uses Twilio API
 @app.route("/sms", methods=["POST"])
 def sms_reply():
-    if(my_directory == "/home/stagingapi/mysite"):
-        return("Blocked. This is is not available on the staging API.", 401)
     message_content = request.values.get('Body', None)
     contact = request.values.get('From', None)
     try:
@@ -126,6 +109,17 @@ def sms_reply():
         return ("SMS Message Sent", 200)
     except Exception as e:
         return ("An Error Occured while sending SMS", e)
+
+
+# Route to Delete All Pushbullet Notifications
+# Uses 256-bit key encryption.
+@app.route('/pbdel', methods=['GET'])
+def pbdelete():
+    AuthCode = request.args.get('auth')
+    if(AuthCode == Auth_Token):
+        return(pushbullet.delete())
+    else:
+        return ("Unauthorized User", 401)
 
 
 @app.route('/form', methods=['POST'])
