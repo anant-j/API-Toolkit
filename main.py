@@ -132,7 +132,6 @@ def sms_reply():
 
 
 # Endpoint to Delete All Pushbullet Notifications
-# Uses 256-bit key encryption.
 @app.route('/pbdel', methods=['GET'])
 def pushbullet_clear():
     # Get authorization code provided in request
@@ -159,7 +158,8 @@ def form():
         return("Form Could not be sent", 500)
 
 
-# CI with GitHub
+# CI with GitHub & PythonAnywhere
+# Author : Aadi Bajpai
 # https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
 def webhook():
