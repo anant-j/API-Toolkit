@@ -21,7 +21,7 @@ from_number = api_keys["Twilio"]['MY_TWILIO_NUMBER']
 client = Client(account_sid, auth_token, http_client=proxy_client)
 
 
-def send_sms(message_content, contact):
+def send(message_content, contact):
     original_message = message_content
     message_content = message_content.lower().strip()
 

@@ -1,5 +1,7 @@
 import re
 
+# Degrees, minutes, seconds <-> Decimal Degrees
+
 
 def dms2dd(degrees, minutes, seconds, direction):
     dd = float(degrees) + float(minutes) / 60 + float(seconds) / (60 * 60)
@@ -19,7 +21,6 @@ def dd2dms(deg):
 def parse_dms(dms):
     parts = re.split(r'[^\d\w]+', dms)
     lat = dms2dd(parts[0], parts[1], parts[2], parts[3])
-
     return (lat)
 
 
