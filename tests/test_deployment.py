@@ -1,5 +1,6 @@
 import requests
 import json
+import pytest
 
 deployment = requests.get('http://stagingapi.pythonanywhere.com/git')
 if deployment.status_code == 200:
@@ -7,7 +8,7 @@ if deployment.status_code == 200:
     branch = dep_result[0]
     dep_hash = str(dep_result[1])
 else:
-    dep_hash = 2222
+    assert(False)
 
 try:
     git = requests.get(
@@ -16,12 +17,11 @@ try:
 except Exception:
     git = requests.get(
         "https://api.github.com/repos/anant-j/API-Toolkit/git/refs/heads/master")
+
 if git.status_code == 200:
     res = json.loads(git.text)
     sha = str(res["object"]["sha"])
 else:
-    sha = 1111
-if(dep_hash != "0000000000000000000000000000000000000000"):
-    assert(dep_hash == sha)
-else:
-    assert(True)
+    assert(False)
+
+assert(dep_hash == sha)
