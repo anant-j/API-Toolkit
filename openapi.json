@@ -1,0 +1,183 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API Toolkit",
+    "version": "1.0.0",
+    "description": "This is the documentation for API Toolkit.  \nVisit [https://github.com/anant-j/API-Toolkit](https://github.com/anant-j/API-Toolkit) for more informayion.",
+    "contact": {
+      "email": "anant.j2409@gmail.com",
+      "name": "Anant Jain",
+      "url": "https://www.anant-j.com"
+    },
+    "license": {
+      "name": "Creative Commons Zero v1.0 Universal",
+      "url": "https://github.com/anant-j/API-Toolkit/blob/master/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://anantj24.pythonanywhere.com/"
+    },
+    {
+      "url": "https://stagingapi.pythonanywhere.com/"
+    }
+  ],
+  "paths": {
+    "/analytics": {
+      "post": {
+        "summary": "Sends client's information as a notification and to storage",
+        "description": "",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "text/plain; charset=utf-8": {
+                "examples": {
+                  "Success Message": {
+                    "value": "Sent"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized response",
+            "content": {
+              "text/plain; charset=utf-8": {
+                "examples": {
+                  "Error Message": {
+                    "value": "Unauthorized User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/sms": {
+      "post": {
+        "summary": "Sends sms response as SMS to requester",
+        "description": "Only accessible via Twilio",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "text/plain; charset=utf-8": {
+                "examples": {
+                  "Success Message": {
+                    "value": "SMS Message Sent"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SMS"
+        ]
+      }
+    },
+    "/pbdel": {
+      "delete": {
+        "summary": "Deletes all notifications on Pushbullet servers",
+        "description": "Requires secret authentication key to work",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "text/plain; charset=utf-8": {
+                "examples": {
+                  "Success Message": {
+                    "value": "Deleted All Messages on Pushbullet"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized response",
+            "content": {
+              "text/plain; charset=utf-8": {
+                "examples": {
+                  "Error Message": {
+                    "value": "Unauthorized User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Pushbullet Delete Notifications"
+        ]
+      }
+    },
+    "/form": {
+      "post": {
+        "summary": "Sends contact form data to Pushbullet and Firebase Firestore",
+        "description": "Requires secret authentication key to work",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "text/plain; charset=utf-8": {
+                "examples": {
+                  "Success Message": {
+                    "value": "Form sent"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not send form",
+            "content": {
+              "text/plain; charset=utf-8": {
+                "examples": {
+                  "Error Message": {
+                    "value": "Form Could not be sent"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Form"
+        ]
+      }
+    },
+    "/update_server": {
+      "post": {
+        "summary": "Update the deployed code on PythonAnywhere",
+        "description": "Only accepts requests from Github Webhooks",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "text/plain; charset=utf-8": {
+                "examples": {
+                  "Success Message": {
+                    "value": "Updated PythonAnywhere successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Update Server"
+        ]
+      }
+    }
+  }
+}

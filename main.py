@@ -144,6 +144,7 @@ def pushbullet_clear():
         return ("Unauthorized User", 401)
 
 
+# Endpoint to send contact form data to Pushbullet and Firebase Firestore
 @app.route('/form', methods=['POST'])
 def form():
     try:
