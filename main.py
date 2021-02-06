@@ -26,6 +26,7 @@ Expected_Origin = api_keys["Hosts"]["Origin"]
 IP_access_token = api_keys["IpInfo"]
 IP_handler = ipinfo.getHandler(IP_access_token)
 Rate_limit_storage = {}
+Rate_limit_storage["Rate_limited_status"] = False
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -59,7 +60,7 @@ def health():
 # Rate Limit Check Endpoint
 @app.route('/rateLimited')
 def rate_limit_status():
-    return (str(isRateLimited()))
+    return (str(Rate_limit_storage["Rate_limited_status"]))
 
 
 # Git Branch check Endpoint
@@ -105,7 +106,7 @@ def analytics():
     Request_data.update(Ip_details.all)
     # Hostname Verification to prevent spoofing
     if (request.environ['HTTP_ORIGIN'] == Expected_Origin):
-        if (isRateLimited()):
+        if (rate_limit()):
             return ("Rate Limited")
         try:
             # Send Pushbullet Notification ( Function Call )
@@ -225,7 +226,7 @@ def e404(e):
 # In memory rate limiting function
 # Dynamically loads rate limiting parameters from storage (keys)
 # Returns boolean value (Rate limited - true or fase)
-def isRateLimited():
+def rate_limit():
     # Setting the initial rate limit flag to false
     rate_limit_flag = False
     # Get current request time
@@ -256,8 +257,9 @@ def isRateLimited():
         Rate_limit_storage["Number_of_requests"] += 1
     # Set latest request time as current request's time
     Rate_limit_storage["Last_request_time"] = request_time
+    Rate_limit_storage["Rate_limited_status"] = rate_limit_flag
     return rate_limit_flag
 
 
-# if (__name__ == "__main__"):
-#     app.run(debug=True)
+if (__name__ == "__main__"):
+    app.run(debug=True)
