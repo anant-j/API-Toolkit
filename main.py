@@ -26,7 +26,6 @@ Expected_Origin = api_keys["Hosts"]["Origin"]
 IP_access_token = api_keys["IpInfo"]
 IP_handler = ipinfo.getHandler(IP_access_token)
 Rate_limit_storage = {}
-Rate_limit_storage["Rate_limited_status"] = False
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -55,12 +54,6 @@ def favicon():
 @app.route('/status')
 def health():
     return ("UP", 200)
-
-
-# Rate Limit Check Endpoint
-@app.route('/rateLimited')
-def rate_limit_status():
-    return (str(Rate_limit_storage["Rate_limited_status"]))
 
 
 # Git Branch check Endpoint
@@ -257,7 +250,6 @@ def rate_limit():
         Rate_limit_storage["Number_of_requests"] += 1
     # Set latest request time as current request's time
     Rate_limit_storage["Last_request_time"] = request_time
-    Rate_limit_storage["Rate_limited_status"] = rate_limit_flag
     return rate_limit_flag
 
 
