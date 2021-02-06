@@ -1,12 +1,13 @@
 import json
 import os
+from datetime import timedelta
 
 import requests
 from twilio.http.http_client import TwilioHttpClient
 from twilio.rest import Client
 
+import common_methods as utility
 import cordinate_converter
-import travel_handler as traffic
 
 proxy_client = TwilioHttpClient()
 if "https_proxy" in os.environ:
@@ -45,7 +46,7 @@ def send(message_content, contact):
             response = "Could not process request. Please enter co-ordinates in format: x°y′z″ N  a°b′c″ W"
     else:
         locations = message_decoder(message_content)
-        if(locations == "ERROR"):
+        if (locations == "ERROR"):
             response = "Please format your message correctly. Type USAGE for more info!"
         else:
             try:
@@ -93,13 +94,51 @@ def generate_route(origin, destination="home"):
     if destination == "home":
         destination = home_location
     try:
-        Route = traffic.TravelTime(
+        Route = TravelTime(
             origin,
             destination)
         res += "Showing travel details for destination: " + destination + "\n"
         res += "Distance : " + Route.distance + "\n"
         res += "Estimated Time : " + Route.traffic_time + "\n"
-        res += "ETA : " + traffic.eta(Route.traffic_time_sec) + "\n"
+        res += "ETA : " + eta(Route.traffic_time_sec) + "\n"
     except BaseException:
         res += "Could not get distance to" + destination
     return (res)
+
+
+class TravelTime:
+    def __init__(self, start, end):
+        # URL for Google's Distance Matrix API
+        url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+        # API key
+        apikey = api_keys["Google_Distance_Matrix"]
+        # Generating Query Parameters
+        query_parameters = {
+            "units": "metric",
+            "departure_time": str(int(utility.current_time().timestamp())),
+            "traffic_model": "best_guess",
+            "origins": start,
+            "destinations": end,
+            "key": apikey
+            }
+        # Formulating Request Headers
+        headers = {
+            'cache-control': "no-cache",
+        }
+        # Calling API
+        response = requests.request(
+            "GET", url, headers=headers, params=query_parameters)
+        # Converting response to JSON/Dict
+        result = json.loads(response.text)
+        # Assigning response results
+        self.distance = result['rows'][0]['elements'][0]['distance']['text']
+        self.traffic_time = result['rows'][0]['elements'][0]['duration_in_traffic']['text']
+        self.traffic_time_sec = result['rows'][0]['elements'][0]['duration_in_traffic']['value']
+
+
+# Computes estimated time of arrival
+def eta(time):
+    # Get current time
+    central = utility.current_time()
+    # Return date and time with the estimated travel time added
+    return (str(central + timedelta(seconds=time))[0:19])
