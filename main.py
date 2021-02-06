@@ -14,6 +14,7 @@ import firebase_handler as firebase
 import github_handler as github
 import pushbullet_handler as pushbullet
 import sms_handler as sms
+import common_methods as utility
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 with open(my_directory + '/secrets/keys.json') as f:
@@ -24,6 +25,7 @@ Pushbullet_Delete_Secret = api_keys["Pushbullet"]["Delete"]
 Expected_Origin = api_keys["Hosts"]["Origin"]
 IP_access_token = api_keys["IpInfo"]
 IP_handler = ipinfo.getHandler(IP_access_token)
+Rate_limit_storage = {}
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -96,7 +98,9 @@ def analytics():
     # Updating dataset with Ip information
     Request_data.update(Ip_details.all)
     # Hostname Verification to prevent spoofing
-    if(request.environ['HTTP_ORIGIN'] == Expected_Origin):
+    if (request.environ['HTTP_ORIGIN'] == Expected_Origin):
+        if (isRateLimited()):
+            return ("Rate Limited")
         try:
             # Send Pushbullet Notification ( Function Call )
             pushbullet.send_analytics(Request_data)
@@ -137,9 +141,9 @@ def pushbullet_clear():
     # Get authorization code provided in request
     AuthCode = request.args.get('auth')
     # Check if authorization code is valid
-    if(AuthCode == Pushbullet_Delete_Secret):
+    if (AuthCode == Pushbullet_Delete_Secret):
         # Delete all notifications
-        return(pushbullet.delete())
+        return (pushbullet.delete())
     else:
         return ("Unauthorized User", 401)
 
@@ -154,9 +158,9 @@ def form():
         pushbullet.send_form(form_data)
         # Send Form data to Firebase
         firebase.upload_form(form_data)
-        return("Form sent")
+        return ("Form sent")
     except BaseException:
-        return("Form Could not be sent", 500)
+        return ("Form Could not be sent", 500)
 
 
 # CI with GitHub & PythonAnywhere
@@ -176,8 +180,8 @@ def webhook():
         return json.dumps({'msg': 'Ping Successful!'})
     if event != "push":
         return json.dumps({'msg': "Wrong event type"})
-    # Checking that branch is master for non staging deployments 
-    if(my_directory != "/home/stagingapi/mysite"):
+    # Checking that branch is master for non staging deployments
+    if (my_directory != "/home/stagingapi/mysite"):
         if payload['ref'] != 'refs/heads/master':
             return json.dumps({'msg': 'Not master; ignoring'})
     try:
@@ -210,6 +214,43 @@ def e500(e):
 @app.errorhandler(404)
 def e404(e):
     return redirect(Redirect_address, code=302)
+
+
+# In memory rate limiting function
+# Dynamically loads rate limiting parameters from storage (keys)
+# Returns boolean value (Rate limited - true or fase)
+def isRateLimited():
+    # Setting the initial rate limit flag to false
+    rate_limit_flag = False
+    # Get current request time
+    request_time = utility.current_time()
+    # Initialize key-value if the in-memory storage is not set up properly
+    if ("Last_request_time" not in Rate_limit_storage):
+        Rate_limit_storage["Last_request_time"] = request_time
+    # Initialize key-value if the in-memory storage is not set up properly
+    if ("Number_of_requests" not in Rate_limit_storage):
+        Rate_limit_storage["Number_of_requests"] = 0
+    # Set last request's time (local variable) from storage
+    last_request_time = Rate_limit_storage["Last_request_time"]
+    # Compute seconds between current request and last request
+    time_difference = utility.seconds_between(request_time, last_request_time)
+    # Check if time difference is greater than allowed
+    if time_difference >= api_keys["Rate_Limit"]["Seconds"]:
+        # Since elapsed time is more than allowed time
+        # Set Number of requests as 1
+        Rate_limit_storage["Number_of_requests"] = 1
+    # Time elapsed is less than specified time
+    else:
+        # If number of requests is greater than allowed requests in given time
+        if (Rate_limit_storage["Number_of_requests"] >
+                api_keys["Rate_Limit"]["Maximum_requests_allowed"]):
+            # Set rate limited flag to True
+            rate_limit_flag = True
+        # Increase number of requests by 1
+        Rate_limit_storage["Number_of_requests"] += 1
+    # Set latest request time as current request's time
+    Rate_limit_storage["Last_request_time"] = request_time
+    return rate_limit_flag
 
 
 # if (__name__ == "__main__"):
