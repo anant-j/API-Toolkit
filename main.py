@@ -56,6 +56,12 @@ def health():
     return ("UP", 200)
 
 
+# Rate Limit Check Endpoint
+@app.route('/rateLimited')
+def rate_limit_status():
+    return (str(isRateLimited()))
+
+
 # Git Branch check Endpoint
 # Displays the current deployed branch with SHA for Pytest verification
 @app.route('/git')
