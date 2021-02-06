@@ -41,6 +41,10 @@ Obtain from Google Firebase Console
         "Redirect_address": "YOUR WEBSITE'S ADDRESS",
         "Origin": "YOUR WEBSITE'S ORIGIN ADDRESS",
         "Home_Location" : "HOME ADDRESS"
+    },
+    "Rate_Limit" : {
+        "Seconds" : 60,
+        "Maximum_requests_allowed" : 5
     }
 }
 ```
