@@ -242,7 +242,7 @@ def isRateLimited():
     # Time elapsed is less than specified time
     else:
         # If number of requests is greater than allowed requests in given time
-        if (Rate_limit_storage["Number_of_requests"] >
+        if (Rate_limit_storage["Number_of_requests"] >=
                 api_keys["Rate_Limit"]["Maximum_requests_allowed"]):
             # Set rate limited flag to True
             rate_limit_flag = True
