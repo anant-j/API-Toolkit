@@ -9,6 +9,7 @@ with open(my_directory + '/secrets/keys.json') as f:
 webhook_key = api_keys['Github_Webhook']
 
 
+# Author : Aadi Bajpai
 # Checks if Github signature is valid or not
 def is_valid_signature(x_hub_signature, data):
     # x_hub_signature and data are from the webhook payload

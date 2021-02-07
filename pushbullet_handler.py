@@ -35,7 +35,7 @@ def send_analytics(req):
     try:
         requests.post(url, data=json.dumps(content), headers=headers)
     except Exception as e:
-        return (":( An error occurred while sending data to Pushbullet:", {e})
+        return ("An error occurred while sending data to Pushbullet:", {e})
 
 
 # Sends Form data to Pushbullet API
@@ -57,7 +57,7 @@ def send_form(formData):
     try:
         requests.post(url, data=json.dumps(content), headers=headers)
     except Exception as e:
-        return (":( An error occurred while sending data to Pushbullet:", {e})
+        return ("An error occurred while sending data to Pushbullet:", {e})
 
 
 # Deletes all notifications via Pushbullet API
@@ -69,7 +69,7 @@ def delete():
         return ("Deleted All Messages on Pushbullet", 200)
     except Exception as e:
         return (
-            ":( An error occurred while deleting data from Pushbullet:", {e})
+            "An error occurred while deleting data from Pushbullet:", {e})
 
 
 # def list_devices():

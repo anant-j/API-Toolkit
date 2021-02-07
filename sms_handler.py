@@ -86,13 +86,11 @@ def balance():
         result = json.loads(response.text)
         return ("The account balance is: $" + result["balance"])
     except BaseException:
-        return ("The account balance could not be retrieved at this time :(")
+        return ("The account balance could not be retrieved at this time")
 
 
-def generate_route(origin, destination="home"):
+def generate_route(origin, destination=home_location):
     res = ".\n"
-    if destination == "home":
-        destination = home_location
     try:
         Route = TravelTime(
             origin,
