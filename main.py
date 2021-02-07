@@ -237,6 +237,9 @@ def refresh_buffer(request_time):
                 >= api_keys["Rate_Limit"]["Seconds"]):
             # Expell that value from the buffer
             Rate_limit_buffer.remove(value)
+        # If the difference for the current value
+        # isn't greater, it will be smaller for the subsequent ones
+        # Therefore, no need to check 
         else:
             break
 
