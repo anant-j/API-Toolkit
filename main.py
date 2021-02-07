@@ -16,9 +16,17 @@ import pushbullet_handler as pushbullet
 import sms_handler as sms
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
-with open(my_directory + '/secrets/keys.json') as f:
-    api_keys = json.load(f)
 
+
+api_keys = {}
+
+
+def load_keys():
+    with open(my_directory + '/secrets/keys.json') as f:
+        api_keys.update(json.load(f))
+
+
+load_keys()
 Redirect_address = api_keys["Hosts"]["Redirect_address"]
 Pushbullet_Delete_Secret = api_keys["Pushbullet"]["Delete"]
 Expected_Origin = api_keys["Hosts"]["Origin"]
@@ -52,20 +60,20 @@ def favicon():
 # Health Check Endpoint
 @app.route('/status')
 def health():
-    return ("UP", 200)
+    return "UP"
 
 
 # Rate Limit Check Endpoint
 @app.route('/isRateLimited')
 def rate_limit_check():
-    return (str(is_rate_limited(utility.current_time())))
+    return str(is_rate_limited(utility.current_time()))
 
 
 # Git Branch check Endpoint
 # Displays the current deployed branch with SHA for Pytest verification
 @app.route('/git')
 def git_sha():
-    return (str(file_store.read()), 200)
+    return str(file_store.read())
 
 
 # Function : get_ip_address
@@ -98,18 +106,18 @@ def analytics():
     Request_data["Ip Address"] = Ip_address
     Request_data.update(Ip_details.all)
     # Hostname Verification
-    if (request.environ['HTTP_ORIGIN'] == Expected_Origin):
-        if (rate_limit()):
-            return ("Rate Limited", 429)
+    if request.environ['HTTP_ORIGIN'] == Expected_Origin:
+        if rate_limit():
+            return "Rate Limited", 429
         try:
             pushbullet.send_analytics(Request_data)
             firebase.upload_analytics(
                 Page, Fingerprint, Ip_address, Time, Request_data)
-            return ("Sent", 200)
+            return "Sent"
         except Exception as e:
-            return ("An Error occurred while sending data to Firebase:", {e})
+            return "An Error occurred while sending data to Firebase:", {e}
     else:
-        return ("Unauthorized User", 401)
+        return "Unauthorized User", 401
 
 
 # Endpoint for SMS. Uses Twilio API
@@ -128,19 +136,19 @@ def sms_reply():
         response = MessagingResponse()
         # Sending SMS
         response.message(message)
-        return ("SMS Message Sent", 200)
+        return "SMS Message Sent"
     except Exception as e:
-        return ("An Error Occurred while sending SMS", e)
+        return "An Error Occurred while sending SMS", e
 
 
 # Endpoint to Delete All Pushbullet Notifications
 @app.route('/pbdel', methods=['GET'])
 def pushbullet_clear():
     AuthCode = request.args.get('auth')
-    if (AuthCode == Pushbullet_Delete_Secret):
-        return (pushbullet.delete())
+    if AuthCode == Pushbullet_Delete_Secret:
+        return pushbullet.delete()
     else:
-        return ("Unauthorized User", 401)
+        return "Unauthorized User", 401
 
 
 # Endpoint to send contact form data to Pushbullet and Firebase Firestore
@@ -150,9 +158,9 @@ def form():
         form_data = request.get_json(force=True)
         pushbullet.send_form(form_data)
         firebase.upload_form(form_data)
-        return ("Form sent")
+        return "Form sent"
     except BaseException:
-        return ("Form Could not be sent", 500)
+        return "Form Could not be sent", 500
 
 
 # CI with GitHub & PythonAnywhere
@@ -172,7 +180,7 @@ def webhook():
     if event != "push":
         return json.dumps({'msg': "Wrong event type"})
     # Checking that branch is master for non staging deployments
-    if (my_directory != "/home/stagingapi/mysite"):
+    if my_directory != "/home/stagingapi/mysite":
         if payload['ref'] != 'refs/heads/master':
             return json.dumps({'msg': 'Not master; ignoring'})
     try:
@@ -182,7 +190,7 @@ def webhook():
         origin = repo.remotes.origin
         origin.pull(branch)
         file_store.write(branch + "," + str(payload['after']))
-        return 'Updated PythonAnywhere successfully', 200
+        return 'Updated PythonAnywhere successfully'
     except BaseException:
         try:
             repo = git.Repo(my_directory)
@@ -190,15 +198,15 @@ def webhook():
             origin = repo.remotes.origin
             origin.pull('master')
             file_store.write("master" + "," + str(payload['after']))
-            return 'Updated PythonAnywhere successfully (Master branch)', 200
+            return 'Updated PythonAnywhere successfully (Master branch)'
         except Exception as e:
-            return (str(e))
+            return str(e)
 
 
 # Handle Internal Server Errors
 @app.errorhandler(500)
 def e500(e):
-    return ("Internal Server Error", 500)
+    return "Internal Server Error", 500
 
 
 # If user enters wrong api link -> Redirect to main website
@@ -213,16 +221,17 @@ def e404(e):
 def rate_limit():
     request_time = utility.current_time()
     Rate_limit_buffer.append(request_time)
-    return (is_rate_limited(request_time))
+    return is_rate_limited(request_time)
 
 
 # Checks if the request is rate limited or not
 # Returns : boolean value (Rate limited - true or fase)
 def is_rate_limited(request_time):
+    # Reload api_key values (dynamic keys)
+    load_keys()
     refresh_buffer(request_time)
     # If buffer has more requests than allowed, then rateLimit
-    if (len(Rate_limit_buffer) >
-            api_keys["Rate_Limit"]["Maximum_requests_allowed"]):
+    if len(Rate_limit_buffer) > api_keys["Rate_Limit"]["Maximum_requests_allowed"]:
         return True
     return False
 
@@ -233,17 +242,16 @@ def refresh_buffer(request_time):
     for value in Rate_limit_buffer:
         # If the time difference between current time and stored time
         # is greater than the specified time
-        if (utility.seconds_between(request_time, value)
-                >= api_keys["Rate_Limit"]["Seconds"]):
+        if utility.seconds_between(request_time, value) >= api_keys["Rate_Limit"]["Seconds"]:
             # Expell that value from the buffer
             Rate_limit_buffer.remove(value)
         # If the difference for the current value
         # isn't greater, it will be smaller for the subsequent ones
-        # Therefore, no need to check 
+        # Therefore, no need to check
         else:
             break
 
 
-# # For debugging purposes only
-# if (__name__ == "__main__"):
+# For debugging purposes only
+# if __name__ == "__main__":
 #     app.run(debug=True)

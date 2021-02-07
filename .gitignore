@@ -1,5 +1,6 @@
-*key.json
-*keys.json
-*github_webhook*
-params.py
+*.json
 *.pyc
+.vscode
+.pytest_cache
+__pycache__
+virtualenv

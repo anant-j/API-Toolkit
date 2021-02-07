@@ -27,7 +27,7 @@ def dd2dms(deg):
 def parse_dms(dms):
     parts = re.split(r'[^\d\w]+', dms)
     lat = dms2dd(parts[0], parts[1], parts[2], parts[3])
-    return (lat)
+    return lat
 
 
 # Converts co-ordinates from iOS compass application to latitude and longitude
@@ -45,4 +45,4 @@ def coordinates(inp):
         second = ar[1]
         return(parse_dms(first), parse_dms(second))
     except Exception as e:
-        return ("An Error Occurred", e)
+        return "An Error Occurred", e

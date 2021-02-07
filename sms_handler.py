@@ -21,6 +21,7 @@ account_sid = api_keys["Twilio"]['MY_ACCOUNT_SID']
 auth_token = api_keys["Twilio"]['MY_AUTH_TOKEN']
 from_number = api_keys["Twilio"]['MY_TWILIO_NUMBER']
 home_location = api_keys["Hosts"]["Home_Location"]
+compass_identifiers = ["°", "′", "″"]
 
 client = Client(account_sid, auth_token, http_client=proxy_client)
 
@@ -29,16 +30,15 @@ def send(message_content, contact):
     original_message = message_content
     message_content = message_content.lower().strip()
 
-    if (message_content == "about" or message_content ==
-            "usage" or message_content == "help"):
+    if message_content == "about" or message_content == "usage" or message_content == "help":
         response = "\nThank you for using this service. \nThis SMS Service will return distance and traffic time without using any data. \nPlease type:\n 1)'From: Origin Location - To: Destination Location' \n2)Coordinates from Compass App \n3)'BALANCE' for remaining balance.\nThank You"
 
-    elif (message_content == "balance"):
+    elif message_content == "balance":
         response = "\n" + balance()
 
-    elif ("°" in message_content and "′" in message_content and "″" in message_content and ("n" in message_content or "w" in message_content or "e" in message_content or "s" in message_content)):
+    elif all(char in message_content for char in compass_identifiers):
         val = cordinate_converter.coordinates(original_message)
-        if (val != "An Error Occurred"):
+        if val != "An Error Occurred":
             cordinate_str = (str(val[0])[0:10] +
                              ", " + str(val[1])[0:10])
             response = generate_route(cordinate_str)
@@ -46,7 +46,7 @@ def send(message_content, contact):
             response = "Could not process request. Please enter co-ordinates in format: x°y′z″ N  a°b′c″ W"
     else:
         locations = message_decoder(message_content)
-        if (locations == "ERROR"):
+        if locations == "":
             response = "Please format your message correctly. Type USAGE for more info!"
         else:
             try:
@@ -71,7 +71,7 @@ def message_decoder(text):
             result[el[0].strip()] = el[1].strip()
         return(result)
     except BaseException:
-        return("ERROR")
+        return ""
 
 
 def balance():
@@ -84,9 +84,9 @@ def balance():
                 account_sid,
                 auth_token))
         result = json.loads(response.text)
-        return ("The account balance is: $" + result["balance"])
+        return "The account balance is: $" + result["balance"]
     except BaseException:
-        return ("The account balance could not be retrieved at this time")
+        return "The account balance could not be retrieved at this time"
 
 
 def generate_route(origin, destination=home_location):
@@ -101,7 +101,7 @@ def generate_route(origin, destination=home_location):
         res += "ETA : " + eta(Route.traffic_time_sec) + "\n"
     except BaseException:
         res += "Could not get distance to" + destination
-    return (res)
+    return res
 
 
 class TravelTime:
@@ -139,4 +139,4 @@ def eta(time):
     # Get current time
     central = utility.current_time()
     # Return date and time with the estimated travel time added
-    return (str(central + timedelta(seconds=time))[0:19])
+    return str(central + timedelta(seconds=time))[0:19]

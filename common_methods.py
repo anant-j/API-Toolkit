@@ -14,8 +14,8 @@ def current_time():
     utc = datetime.strptime(result_str, '%Y-%m-%d %H:%M:%S')
     utc = utc.replace(tzinfo=from_zone)
     central = utc.astimezone(to_zone)
-    return (central)
+    return central
 
 
 def seconds_between(left, right):
-    return ((left-right).total_seconds())
+    return (left-right).total_seconds()

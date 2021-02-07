@@ -9,11 +9,11 @@ def test_staging_upload():
         branch = dep_result[0]
         dep_hash = str(dep_result[1])
     else:
-        assert(False)
+        assert False
 
     try:
-        if (branch == "master" or branch == "branch"):
-            assert(True)
+        if branch == "master" or branch == "branch":
+            assert True
         else:
             git = requests.get(
                 "https://api.github.com/repos/anant-j/API-Toolkit/git/refs/heads" +
@@ -21,8 +21,8 @@ def test_staging_upload():
             if git.status_code == 200:
                 res = json.loads(git.text)
                 sha = str(res["object"]["sha"])
-                assert (dep_hash == sha), "test failed"
+                assert dep_hash == sha, "test failed"
             else:
-                assert(False)
+                assert False
     except Exception:
-        assert(False)
+        assert False
