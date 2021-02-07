@@ -5,3 +5,4 @@ twilio
 ipinfo
 python-dateutil
 gitpython
+flask_limiter
