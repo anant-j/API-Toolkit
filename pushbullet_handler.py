@@ -33,6 +33,18 @@ def send_form(formData):
     requests.post(url, data=json.dumps(content), headers=headers)
 
 
+# Sends Performance data to Pushbullet API
+def send_performance(name, response_time, allowed):
+    url = 'https://api.pushbullet.com/v2/pushes'
+    content = {
+        "body": f'The {name} endpoint took an average of : {response_time} to compute \n while the allowed time is : {allowed}',
+        "title": "Performance Alert",
+        "device_iden": DEVID,
+        "type": "note"}
+    headers = {'Access-Token': PBKEY, 'content-type': 'application/json'}
+    requests.post(url, data=json.dumps(content), headers=headers)
+
+
 # Deletes all notifications via Pushbullet API
 def delete():
     url = "https://api.pushbullet.com/v2/pushes"

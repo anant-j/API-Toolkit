@@ -32,6 +32,7 @@ Expected_Origin = api_keys["Hosts"]["Origin"]
 IP_access_token = api_keys["IpInfo"]
 IP_handler = ipinfo.getHandler(IP_access_token)
 Rate_limit_buffer = []
+Processing_time = {}  # Stores performance data for each request
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -66,6 +67,22 @@ def health():
 @app.route('/isRateLimited')
 def rate_limit_check():
     return str(is_rate_limited(utility.current_time()))
+
+
+# Performance Check Endpoint
+@app.route('/performance')
+def performance():
+    try:
+        load_keys()
+        for key, value in Processing_time.items():
+            average = float('%.2f' % (sum(value)/len(value)))
+            allowed_time = api_keys["Performance"]["Allowed"]
+            Processing_time[key] = []
+            if average >= allowed_time:
+                pushbullet.send_performance(key, average, allowed_time)
+        return ("Done")
+    except Exception as error_message:
+        return utility.handle_exception("Performance", {error_message})
 
 
 # Git Branch check Endpoint
@@ -110,9 +127,11 @@ def analytics():
             pushbullet.send_analytics(Request_data)
             firebase.upload_analytics(
                 Page, Fingerprint, Ip_address, Time, Request_data)
+            processing_time = timer.end()
+            record_performance("analytics", processing_time)
             utility.log_request(
                 f"analytics : {Fingerprint} - {Ip_address} - {Request_data}",
-                timer.end())
+                processing_time)
             return "Sent"
         else:
             return "Unauthorized User", 401
@@ -137,9 +156,11 @@ def sms_reply():
         response = MessagingResponse()
         # Sending SMS
         response.message(message)
+        processing_time = timer.end()
+        record_performance("sms", processing_time)
         utility.log_request(
             f"SMS - From : {contact}, Message : {message_content}, Response : {response}",
-            timer.end())
+            processing_time)
         return "SMS Message Sent"
     except Exception as error_message:
         return utility.handle_exception("SMS", {error_message})
@@ -153,7 +174,9 @@ def pushbullet_clear():
         AuthCode = request.args.get('auth')
         if AuthCode == Pushbullet_Delete_Secret:
             pushbullet.delete()
-            utility.log_request("Pushbullet Delete", timer.end())
+            processing_time = timer.end()
+            record_performance("pb delete", processing_time)
+            utility.log_request("Pushbullet Delete", processing_time)
             return "Deleted All Messages on Pushbullet"
         else:
             return "Unauthorized User", 401
@@ -170,7 +193,9 @@ def form():
         form_data = request.get_json(force=True)
         pushbullet.send_form(form_data)
         firebase.upload_form(form_data)
-        utility.log_request("Form Upload", timer.end())
+        processing_time = timer.end()
+        record_performance("form", processing_time)
+        utility.log_request("Form Upload", processing_time)
         return "Form sent"
     except Exception as error_message:
         return utility.handle_exception(
@@ -264,6 +289,13 @@ def refresh_buffer(request_time):
         # Therefore, no need to check
         else:
             break
+
+
+# Adds performance data in global performance storage
+def record_performance(caller, time_taken):
+    if caller not in Processing_time:
+        Processing_time[caller] = []
+    Processing_time[caller].append(time_taken)
 
 
 # # For debugging purposes only
