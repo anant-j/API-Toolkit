@@ -80,13 +80,10 @@ def git_sha():
 # Input :  Request (HTTP)
 # Output : Request's IP Address
 def get_ip_address(input_request):
-    try:
-        if input_request.environ.get('HTTP_X_FORWARDED_FOR') is None:
-            return input_request.environ['REMOTE_ADDR']
-        else:
-            return input_request.environ['HTTP_X_FORWARDED_FOR']
-    except Exception:
-        return 0
+    if input_request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+        return input_request.environ['REMOTE_ADDR']
+    else:
+        return input_request.environ['HTTP_X_FORWARDED_FOR']
 
 
 # Endpoint for Analytics
@@ -96,39 +93,39 @@ def get_ip_address(input_request):
 #                                              -> Firebase Firestore
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def analytics():
-    Request_data = request.get_json()
-    Page = Request_data['Page']
-    Time = Request_data['Date & Time']
-    Fingerprint = str(Request_data['Fingerprint Id'])
-    Ip_address = get_ip_address(request)
-    # Using IpInfo Python Library to retrieve IP details
-    Ip_details = IP_handler.getDetails(Ip_address)
-    Request_data["Ip Address"] = Ip_address
-    Request_data.update(Ip_details.all)
-    # Hostname Verification
-    if request.environ['HTTP_ORIGIN'] == Expected_Origin:
-        if rate_limit():
-            return "Rate Limited", 429
-        try:
-            pushbullet.send_analytics(Request_data)
-            firebase.upload_analytics(
-                Page, Fingerprint, Ip_address, Time, Request_data)
-            return "Sent"
-        except Exception as e:
-            return "An Error occurred while sending data to Firebase:", {e}
-    else:
-        return "Unauthorized User", 401
+    try:
+        Request_data = request.get_json()
+        Page = Request_data['Page']
+        Time = Request_data['Date & Time']
+        Fingerprint = str(Request_data['Fingerprint Id'])
+        Ip_address = get_ip_address(request)
+        # Using IpInfo Python Library to retrieve IP details
+        Ip_details = IP_handler.getDetails(Ip_address)
+        Request_data["Ip Address"] = Ip_address
+        Request_data.update(Ip_details.all)
+        # Hostname Verification
+        if request.environ['HTTP_ORIGIN'] == Expected_Origin:
+            if rate_limit():
+                return "Rate Limited", 429
+                pushbullet.send_analytics(Request_data)
+                firebase.upload_analytics(
+                    Page, Fingerprint, Ip_address, Time, Request_data)
+                return "Sent"
+        else:
+            return "Unauthorized User", 401
+    except Exception as error_message:
+        return utility.handle_exception("analytics", error_message)
 
 
 # Endpoint for SMS. Uses Twilio API
 # This endpoint is expected to be called by Twilio's webhook
 @app.route("/sms", methods=["POST"])
 def sms_reply():
-    # Receive message content
-    message_content = request.values.get('Body', None)
-    # Receive sender's info
-    contact = request.values.get('From', None)
     try:
+        # Receive message content
+        message_content = request.values.get('Body', None)
+        # Receive sender's info
+        contact = request.values.get('From', None)
         # Formulate response
         message = sms.send(message_content, contact)
         # Starting TwiML response
@@ -137,18 +134,22 @@ def sms_reply():
         # Sending SMS
         response.message(message)
         return "SMS Message Sent"
-    except Exception as e:
-        return "An Error Occurred while sending SMS", e
+    except Exception as error_message:
+        return utility.handle_exception("SMS", error_message)
 
 
 # Endpoint to Delete All Pushbullet Notifications
 @app.route('/pbdel', methods=['GET'])
 def pushbullet_clear():
-    AuthCode = request.args.get('auth')
-    if AuthCode == Pushbullet_Delete_Secret:
-        return pushbullet.delete()
-    else:
-        return "Unauthorized User", 401
+    try:
+        AuthCode = request.args.get('auth')
+        if AuthCode == Pushbullet_Delete_Secret:
+            pushbullet.delete()
+            return "Deleted All Messages on Pushbullet"
+        else:
+            return "Unauthorized User", 401
+    except Exception as error_message:
+        return utility.handle_exception("Pushbullet Delete", error_message)
 
 
 # Endpoint to send contact form data to Pushbullet and Firebase Firestore
@@ -159,8 +160,8 @@ def form():
         pushbullet.send_form(form_data)
         firebase.upload_form(form_data)
         return "Form sent"
-    except BaseException:
-        return "Form Could not be sent", 500
+    except Exception as error_message:
+        return utility.handle_exception("Contact Form Data", error_message)
 
 
 # CI with GitHub & PythonAnywhere
@@ -168,50 +169,42 @@ def form():
 # https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
 def webhook():
-    event = request.headers.get('X-GitHub-Event')
-    # Get payload from GitHub webhook request
-    payload = request.get_json()
-    x_hub_signature = request.headers.get('X-Hub-Signature')
-    # Check if signature is valid
-    if not github.is_valid_signature(x_hub_signature, request.data):
-        abort(401)
-    if event == "ping":
-        return json.dumps({'msg': 'Ping Successful!'})
-    if event != "push":
-        return json.dumps({'msg': "Wrong event type"})
-    # Checking that branch is master for non staging deployments
-    if my_directory != "/home/stagingapi/mysite":
-        if payload['ref'] != 'refs/heads/master':
-            return json.dumps({'msg': 'Not master; ignoring'})
     try:
+        event = request.headers.get('X-GitHub-Event')
+        # Get payload from GitHub webhook request
+        payload = request.get_json()
+        x_hub_signature = request.headers.get('X-Hub-Signature')
+        # Check if signature is valid
+        if not github.is_valid_signature(x_hub_signature, request.data):
+            abort(401)
+        if event == "ping":
+            return json.dumps({'msg': 'Ping Successful!'})
+        if event != "push":
+            return json.dumps({'msg': "Wrong event type"})
         repo = git.Repo(my_directory)
-        branch = str(payload['ref'][11:])
+        branch = payload['ref'][11:]
+        # Checking that branch is a non staging deployments
+        if my_directory != "/home/stagingapi/mysite":
+            if branch != 'master':
+                return json.dumps({'msg': 'Not master; ignoring'})
         repo.git.reset('--hard')
         origin = repo.remotes.origin
         origin.pull(branch)
         file_store.write(branch + "," + str(payload['after']))
-        return 'Updated PythonAnywhere successfully'
-    except BaseException:
-        try:
-            repo = git.Repo(my_directory)
-            repo.git.reset('--hard')
-            origin = repo.remotes.origin
-            origin.pull('master')
-            file_store.write("master" + "," + str(payload['after']))
-            return 'Updated PythonAnywhere successfully (Master branch)'
-        except Exception as e:
-            return str(e)
+        return 'Updated PythonAnywhere successfully with branch: ' + branch
+    except Exception as error_message:
+        return utility.handle_exception("Update Server", error_message)
 
 
 # Handle Internal Server Errors
 @app.errorhandler(500)
-def e500(e):
+def e500(error_message):
     return "Internal Server Error", 500
 
 
 # If user enters wrong api link -> Redirect to main website
 @app.errorhandler(404)
-def e404(e):
+def e404(error_message):
     return redirect(Redirect_address, code=302)
 
 
@@ -230,8 +223,9 @@ def is_rate_limited(request_time):
     # Reload api_key values (dynamic keys)
     load_keys()
     refresh_buffer(request_time)
+    max_requests = api_keys["Rate_Limit"]["Maximum_requests_allowed"]
     # If buffer has more requests than allowed, then rateLimit
-    if len(Rate_limit_buffer) > api_keys["Rate_Limit"]["Maximum_requests_allowed"]:
+    if len(Rate_limit_buffer) > max_requests:
         return True
     return False
 
@@ -242,7 +236,8 @@ def refresh_buffer(request_time):
     for value in Rate_limit_buffer:
         # If the time difference between current time and stored time
         # is greater than the specified time
-        if utility.seconds_between(request_time, value) >= api_keys["Rate_Limit"]["Seconds"]:
+        if utility.seconds_between(request_time,
+                                   value) >= api_keys["Rate_Limit"]["Seconds"]:
             # Expell that value from the buffer
             Rate_limit_buffer.remove(value)
         # If the difference for the current value
@@ -252,6 +247,6 @@ def refresh_buffer(request_time):
             break
 
 
-# For debugging purposes only
+# # For debugging purposes only
 # if __name__ == "__main__":
 #     app.run(debug=True)

@@ -11,18 +11,15 @@ def test_staging_upload():
     else:
         assert False
 
-    try:
-        if branch == "master" or branch == "branch":
-            assert True
+    if branch == "master" or branch == "branch":
+        assert True
+    else:
+        git = requests.get(
+            "https://api.github.com/repos/anant-j/API-Toolkit/git/refs/heads" +
+            "/" + branch)
+        if git.status_code == 200:
+            res = json.loads(git.text)
+            sha = str(res["object"]["sha"])
+            assert dep_hash == sha, "test failed"
         else:
-            git = requests.get(
-                "https://api.github.com/repos/anant-j/API-Toolkit/git/refs/heads" +
-                "/" + branch)
-            if git.status_code == 200:
-                res = json.loads(git.text)
-                sha = str(res["object"]["sha"])
-                assert dep_hash == sha, "test failed"
-            else:
-                assert False
-    except Exception:
-        assert False
+            assert False

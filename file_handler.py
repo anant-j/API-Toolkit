@@ -15,4 +15,4 @@ def write(content):
 def read():
     file = my_directory + "/tests/gitstats.txt"
     with open(file, 'r') as filetoread:
-        return(filetoread.read())
+        return filetoread.read()

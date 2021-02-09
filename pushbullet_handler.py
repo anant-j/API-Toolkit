@@ -32,10 +32,7 @@ def send_analytics(req):
         "device_iden": DEVID,
         "type": "note"}
     headers = {'Access-Token': PBKEY, 'content-type': 'application/json'}
-    try:
-        requests.post(url, data=json.dumps(content), headers=headers)
-    except Exception as e:
-        return "An error occurred while sending data to Pushbullet:", {e}
+    requests.post(url, data=json.dumps(content), headers=headers)
 
 
 # Sends Form data to Pushbullet API
@@ -54,21 +51,14 @@ def send_form(formData):
         "device_iden": DEVID,
         "type": "note"}
     headers = {'Access-Token': PBKEY, 'content-type': 'application/json'}
-    try:
-        requests.post(url, data=json.dumps(content), headers=headers)
-    except Exception as e:
-        return "An error occurred while sending data to Pushbullet:", {e}
+    requests.post(url, data=json.dumps(content), headers=headers)
 
 
 # Deletes all notifications via Pushbullet API
 def delete():
     url = "https://api.pushbullet.com/v2/pushes"
     headers = {'Access-Token': PBKEY}
-    try:
-        requests.delete(url, headers=headers)
-        return "Deleted All Messages on Pushbullet"
-    except Exception as e:
-        return "An error occurred while deleting data from Pushbullet:", {e}
+    requests.delete(url, headers=headers)
 
 
 # def list_devices():
