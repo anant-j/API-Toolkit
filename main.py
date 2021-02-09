@@ -15,17 +15,21 @@ import sms_handler as sms
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
-api_keys = {}  # In memory configuration and keys storage
+configuration = {}
+
+""" Reads and storeas API keys """
+with open(f'{my_directory}/secrets/keys.json') as f:
+    api_keys = json.load(f)
 
 
-def load_keys():
+def load_config():
     """ Reads keys and configuration paramters from storage
     and updates in-memory store with the data """
-    with open(f'{my_directory}/secrets/keys.json') as f:
-        api_keys.update(json.load(f))
+    with open(f'{my_directory}/secrets/config.json') as f:
+        configuration.update(json.load(f))
 
 
-load_keys()  # Load keys when application is started
+load_config()  # Load keys when application is started
 Redirect_address = api_keys["Hosts"]["Redirect_address"]
 Pushbullet_Delete_Secret = api_keys["Pushbullet"]["Delete"]
 Expected_Origin = api_keys["Hosts"]["Origin"]
@@ -92,13 +96,13 @@ def performance():
         that was processed by the request
     """
     try:
-        load_keys()
+        load_config()
         # Making a local copy of the key before it is cleared
         snapshot = Processing_time.copy()
         for key, value in Processing_time.items():
             if len(value) > 0:
                 average = float('%.2f' % (sum(value) / len(value)))
-                allowed_time = api_keys["Performance"]["Allowed"]
+                allowed_time = configuration["Performance"]["Allowed"]
                 Processing_time[key] = []  # Clear storage for that key
                 if average >= allowed_time:
                     pushbullet.send_performance(key, average, allowed_time)
@@ -319,10 +323,10 @@ def is_rate_limited(request_time):
     Returns:
         boolean: True/False: Rate Limited
     """
-    # Reload api_key values (dynamic keys)
-    load_keys()
+    # Reload config values (dynamic config)
+    load_config()
     refresh_buffer(request_time)
-    max_requests = api_keys["Rate_Limit"]["Maximum_requests_allowed"]
+    max_requests = configuration["Rate_Limit"]["Maximum_requests_allowed"]
     # If buffer has more requests than allowed, then rateLimit
     if len(Rate_limit_buffer) > max_requests:
         return True
@@ -340,7 +344,7 @@ def refresh_buffer(request_time):
         # If the time difference between current time and stored time
         # is greater than the specified time
         if utility.seconds_between(request_time,
-                                   value) >= api_keys["Rate_Limit"]["Seconds"]:
+                                   value) >= configuration["Rate_Limit"]["Seconds"]:
             # Expell that value from the buffer
             Rate_limit_buffer.remove(value)
         # If the difference for the current value
