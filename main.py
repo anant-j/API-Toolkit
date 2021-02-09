@@ -189,9 +189,14 @@ def webhook():
                 return json.dumps({'msg': 'Not master; ignoring'})
         repo.git.reset('--hard')
         origin = repo.remotes.origin
-        origin.pull(branch)
-        file_store.write(f'{branch} ,' + str(payload["after"]))
-        return f'Updated PythonAnywhere successfully with branch: {branch}'
+        try:
+            origin.pull(branch)
+            file_store.write(f'{branch} ,' + str(payload["after"]))
+            return f'Updated PythonAnywhere successfully with branch: {branch}'
+        except Exception:
+            origin.pull('master')
+            file_store.write(f'{branch} ,' + str(payload["after"]))
+            return f'Updated PythonAnywhere successfully with branch: master'
     except Exception as error_message:
         return utility.handle_exception("Update Server", str(error_message))
 
