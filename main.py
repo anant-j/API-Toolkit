@@ -16,16 +16,17 @@ import sms_handler as sms
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
-
-api_keys = {}
+api_keys = {}  # In memory configuration and keys storage
 
 
 def load_keys():
+    """ Reads keys and configuration paramters from storage
+    and updates in-memory store with the data """
     with open(f'{my_directory}/secrets/keys.json') as f:
         api_keys.update(json.load(f))
 
 
-load_keys()
+load_keys()  # Load keys when application is started
 Redirect_address = api_keys["Hosts"]["Redirect_address"]
 Pushbullet_Delete_Secret = api_keys["Pushbullet"]["Delete"]
 Expected_Origin = api_keys["Hosts"]["Origin"]
@@ -46,9 +47,9 @@ def homepage():
     return redirect(Redirect_address, code=302)
 
 
-# Load Favicon
 @app.route('/favicon.ico')
 def favicon():
+    """ Retrieve Favicon """
     return send_from_directory(
         os.path.join(
             app.root_path,
@@ -57,29 +58,35 @@ def favicon():
         mimetype='image/vnd.microsoft.icon')
 
 
-# Health Check Endpoint
 @app.route('/status')
 def health():
+    """ Health Check Endpoint """
     return "UP"
 
 
-# Rate Limit Check Endpoint
 @app.route('/isRateLimited')
 def rate_limit_check():
+    """ Rate Limit Check Endpoint.
+    Dynamically checks if API is rate limited based on request time """
     return str(is_rate_limited(utility.current_time()))
 
 
-# Performance Check Endpoint
 @app.route('/performance')
 def performance():
+    """ Performance Check Endpoint.
+    Updates the API keys.
+    Computes the average time for each key in Processing_time storage map.
+    If average is greater than the allowed response time,
+    a Pushbullet notification is sent. """
     try:
         load_keys()
+        # Making a local copy of the key before it is cleared
         snapshot = Processing_time.copy()
         for key, value in Processing_time.items():
             if len(value) > 0:
-                average = float('%.2f' % (sum(value)/len(value)))
+                average = float('%.2f' % (sum(value) / len(value)))
                 allowed_time = api_keys["Performance"]["Allowed"]
-                Processing_time[key] = []
+                Processing_time[key] = []  # Clear storage for that key
                 if average >= allowed_time:
                     pushbullet.send_performance(key, average, allowed_time)
         return (str(snapshot))
@@ -87,32 +94,33 @@ def performance():
         return utility.handle_exception("Performance", {error_message})
 
 
-# Git Branch check Endpoint
-# Displays the current deployed branch with SHA for Pytest verification
 @app.route('/git')
 def git_sha():
+    """ Git Branch check Endpoint
+    Displays the current deployed branch
+    with SHA for Pytest verification """
     return str(utility.read("tests/gitstats.txt"))
 
 
-# Function : get_ip_address
-# Input :  Request (HTTP)
-# Output : Request's IP Address
 def get_ip_address(input_request):
+    """ Definition  : Gets Ip Address from request
+        Input       :  Request (HTTP)
+        Output      : Request's IP Address """
     if input_request.environ.get('HTTP_X_FORWARDED_FOR') is None:
         return input_request.environ['REMOTE_ADDR']
     else:
         return input_request.environ['HTTP_X_FORWARDED_FOR']
 
 
-# Endpoint for Analytics
-# Goals : Push messages via Pushbullet & Add Data to Firestore
-# Request flow : (web) client -> (this) server -> IpInfo API
-#                                              -> Pushbullet Notification
-#                                              -> Firebase Firestore
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def analytics():
+    """ Endpoint for Analytics
+    Goals : Push messages via Pushbullet & Add Data to Firestore
+    Request flow : (web) client ->  (this) server   ->  IpInfo API
+                                                    -> Pushbullet Notification
+                                                    -> Firebase Firestore """
     try:
-        timer = utility.Timer()
+        timer = utility.Timer()  # Start timer
         Request_data = request.get_json()
         Page = Request_data['Page']
         Time = Request_data['Date & Time']
@@ -130,10 +138,11 @@ def analytics():
             firebase.upload_analytics(
                 Page, Fingerprint, Ip_address, Time, Request_data)
             processing_time = timer.end()
-            record_performance("analytics", processing_time)
+            record_performance("analytics",
+                               processing_time)  # Record Performance
             utility.log_request(
                 f"analytics : {Fingerprint} - {Ip_address} - {Request_data}",
-                processing_time)
+                processing_time)  # Logging
             return "Sent"
         else:
             return "Unauthorized User", 401
@@ -141,10 +150,10 @@ def analytics():
         return utility.handle_exception("analytics", {error_message})
 
 
-# Endpoint for SMS. Uses Twilio API
-# This endpoint is expected to be called by Twilio's webhook
 @app.route("/sms", methods=["POST"])
 def sms_reply():
+    """ Goals : Process incoming request and send response via SMS
+    This method/endpoint is expected to be called by Twilio's webhook only"""
     try:
         timer = utility.Timer()
         # Receive message content
@@ -168,9 +177,9 @@ def sms_reply():
         return utility.handle_exception("SMS", {error_message})
 
 
-# Endpoint to Delete All Pushbullet Notifications
 @app.route('/pbdel', methods=['GET'])
 def pushbullet_clear():
+    """ Goals : Delete All Pushbullet Notifications """
     try:
         timer = utility.Timer()
         AuthCode = request.args.get('auth')
@@ -187,9 +196,9 @@ def pushbullet_clear():
             "Pushbullet Delete", {error_message})
 
 
-# Endpoint to send contact form data to Pushbullet and Firebase Firestore
 @app.route('/form', methods=['POST'])
 def form():
+    """ Sends contact form data to Pushbullet and Firebase Firestore """
     try:
         timer = utility.Timer()
         form_data = request.get_json(force=True)
@@ -204,11 +213,11 @@ def form():
             "Contact Form Data", {error_message})
 
 
-# CI with GitHub & PythonAnywhere
-# Author : Aadi Bajpai
-# https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
 def webhook():
+    """ CI with GitHub & PythonAnywhere
+        Author : Aadi Bajpai
+        https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664 """
     try:
         event = request.headers.get('X-GitHub-Event')
         # Get payload from GitHub webhook request
@@ -231,11 +240,13 @@ def webhook():
         origin = repo.remotes.origin
         try:
             origin.pull(branch)
-            utility.write("tests/gitstats.txt", f'{branch} ,' + str(payload["after"]))
+            utility.write("tests/gitstats.txt",
+                          f'{branch} ,' + str(payload["after"]))
             return f'Updated PythonAnywhere successfully with branch: {branch}'
         except Exception:
             origin.pull('master')
-            utility.write("tests/gitstats.txt", f'{branch} ,' + str(payload["after"]))
+            utility.write("tests/gitstats.txt",
+                          f'{branch} ,' + str(payload["after"]))
             return 'Updated PythonAnywhere successfully with branch: master'
     except Exception as error_message:
         return utility.handle_exception(
@@ -254,18 +265,19 @@ def e404(error_message):
     return redirect(Redirect_address, code=302)
 
 
-# In memory rate limiting function (Queue/Buffer based)
-# Dynamically loads rate limiting parameters from storage
-# Returns : boolean value (Rate limited - true or fase)
 def rate_limit():
+    """ In memory rate limiting function (Queue/Buffer based)
+    Dynamically loads rate limiting parameters from storage
+    Returns : boolean value (Rate limited - true or fase) """
     request_time = utility.current_time()
     Rate_limit_buffer.append(request_time)
     return is_rate_limited(request_time)
 
 
-# Checks if the request is rate limited or not
-# Returns : boolean value (Rate limited - true or fase)
 def is_rate_limited(request_time):
+    """ Checks if the request is rate limited or not
+        Input   : Request Time (time.time)
+        Returns : boolean value (Rate limited - true or fase) """
     # Reload api_key values (dynamic keys)
     load_keys()
     refresh_buffer(request_time)
@@ -276,8 +288,9 @@ def is_rate_limited(request_time):
     return False
 
 
-# Refreshes buffer by expelling stale requests from buffer
 def refresh_buffer(request_time):
+    """ Refreshes buffer by expelling stale requests from buffer
+        Input   : Request Time (time.time) """
     # For each date time value in buffer
     for value in Rate_limit_buffer:
         # If the time difference between current time and stored time
@@ -293,8 +306,8 @@ def refresh_buffer(request_time):
             break
 
 
-# Adds performance data in global performance storage
 def record_performance(caller, time_taken):
+    """ Adds performance data in global performance storage """
     if caller not in Processing_time:
         Processing_time[caller] = []
     Processing_time[caller].append(time_taken)
