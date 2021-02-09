@@ -38,14 +38,14 @@ def send(message_content, contact):
 
         elif all(char in message_content for char in ["°", "′", "″"]):
             val = cordinate_converter.coordinates(original_message)
-            if val != "An Error Occurred":
+            if val is not None:
                 cordinate_str = (str(val[0])[0:10] + ", " + str(val[1])[0:10])
                 response = generate_route(cordinate_str)
             else:
                 response = "Could not process request. Please enter co-ordinates in format: x°y′z″ N  a°b′c″ W"
         else:
             locations = message_decoder(message_content)
-            if locations == "":
+            if locations is None:
                 response = "Please format your message correctly. Type USAGE for more info!"
             else:
                 if(locations["to"] == "home"):
@@ -54,7 +54,7 @@ def send(message_content, contact):
                     response = generate_route(
                         locations['from'], locations['to'])
     except Exception as error_message:
-        err_code = utility.log_error("(Twilio SMS Send) : " + error_message)
+        err_code = utility.log_error("(Twilio SMS Send) : " + str(error_message))
         response = "An Error occurred while processing your request. Error code : " + err_code
 
     client.messages.create(
@@ -65,13 +65,16 @@ def send(message_content, contact):
 
 
 def message_decoder(text):
-    first_split = text.split("-")
-    result = {}
-    for element in first_split:
-        element = element.strip()
-        el = element.split(":")
-        result[el[0].strip()] = el[1].strip()
-    return result
+    try:
+        first_split = text.split("-")
+        result = {}
+        for element in first_split:
+            element = element.strip()
+            el = element.split(":")
+            result[el[0].strip()] = el[1].strip()
+        return result
+    except Exception:
+        return None
 
 
 def balance():

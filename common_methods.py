@@ -54,6 +54,6 @@ def shift(text, s):
 
 
 def handle_exception(caller, error):
-    err_code = log_error("( " + caller + " ) : " + error)
+    err_code = log_error("( " + caller + " ) : " + str(error))
     return "An Error occurred while processing your request. " + \
         "Error code : " + err_code, 500

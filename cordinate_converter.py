@@ -32,14 +32,17 @@ def parse_dms(dms):
 
 # Converts co-ordinates from iOS compass application to latitude and longitude
 def coordinates(inp):
-    ar = inp
-    ar = ar.replace("″ N", "″N")
-    ar = ar.replace("″ W", "″W")
-    ar = ar.replace("″ S", "″S")
-    ar = ar.replace("″ E", "″E")
-    ar = ar.replace("  ", ",")
-    ar = ar.replace(" ", ",")
-    ar = ar.split(",")
-    first = ar[0]
-    second = ar[1]
-    return (parse_dms(first), parse_dms(second))
+    try:
+        ar = inp
+        ar = ar.replace("″ N", "″N")
+        ar = ar.replace("″ W", "″W")
+        ar = ar.replace("″ S", "″S")
+        ar = ar.replace("″ E", "″E")
+        ar = ar.replace("  ", ",")
+        ar = ar.replace(" ", ",")
+        ar = ar.split(",")
+        first = ar[0]
+        second = ar[1]
+        return (parse_dms(first), parse_dms(second))
+    except Exception:
+        return None
