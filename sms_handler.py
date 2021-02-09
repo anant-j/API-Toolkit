@@ -48,7 +48,7 @@ def send(message_content, contact):
             if locations is None:
                 response = "Please format your message correctly. Type USAGE for more info!"
             else:
-                if(locations["to"] == "home"):
+                if locations["to"] == "home":
                     response = generate_route(locations['from'])
                 else:
                     response = generate_route(
