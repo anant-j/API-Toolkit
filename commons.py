@@ -83,8 +83,7 @@ def shift(text, s):
     return result
 
 
-class Timer():
-
+class Timer:
     def __init__(self):
         self.start = time.time()
 
