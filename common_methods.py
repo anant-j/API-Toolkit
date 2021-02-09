@@ -26,15 +26,15 @@ def current_time_from_api():
 
 # Calculates seconds between two datetime values
 def seconds_between(left, right):
-    return (left-right).total_seconds()
+    return (left - right).total_seconds()
 
 
 # Logs Error Message in PythonAnywhere
 def log_error(message):
     time = (datetime.now())
     error_code = shift(str(time.timestamp()), 5)
-    print(error_code + " : " + message, file=sys.stderr)
-    return error_code
+    print(f'{error_code} : '+str(message), file=sys.stderr)
+    return str(error_code)
 
 
 # https://stackoverflow.com/questions/2490334/simple-way-to-encode-a-string-according-to-a-password#:~:text=To%20encrypt%20or%20decrypt%20messages,encrypted%20token%20are%20bytes%20objects.
@@ -46,14 +46,13 @@ def shift(text, s):
         # Encrypt uppercase characters in plain text
 
         if (char.isupper()):
-            result += chr((ord(char) + s-65) % 26 + 65)
+            result += chr((ord(char) + s - 65) % 26 + 65)
         # Encrypt lowercase characters in plain text
         else:
             result += chr((ord(char) + s - 97) % 26 + 97)
     return result
 
 
-def handle_exception(caller, error):
-    err_code = log_error("( " + caller + " ) : " + str(error))
-    return "An Error occurred while processing your request. " + \
-        "Error code : " + err_code, 500
+def handle_exception(caller, error_message):
+    err_code = log_error(f'({caller}) : {error_message})')
+    return f'An Error occurred while processing your request. Error code : {err_code}', 500

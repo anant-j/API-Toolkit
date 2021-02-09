@@ -22,7 +22,7 @@ api_keys = {}
 
 
 def load_keys():
-    with open(my_directory + '/secrets/keys.json') as f:
+    with open(f'{my_directory}/secrets/keys.json') as f:
         api_keys.update(json.load(f))
 
 
@@ -87,7 +87,7 @@ def get_ip_address(input_request):
 
 
 # Endpoint for Analytics
-# Goals : Push messages via Pushbullet + Add Data to Firestore
+# Goals : Push messages via Pushbullet & Add Data to Firestore
 # Request flow : (web) client -> (this) server -> IpInfo API
 #                                              -> Pushbullet Notification
 #                                              -> Firebase Firestore
@@ -114,7 +114,7 @@ def analytics():
         else:
             return "Unauthorized User", 401
     except Exception as error_message:
-        return utility.handle_exception("analytics", error_message)
+        return utility.handle_exception("analytics", str(error_message))
 
 
 # Endpoint for SMS. Uses Twilio API
@@ -135,7 +135,7 @@ def sms_reply():
         response.message(message)
         return "SMS Message Sent"
     except Exception as error_message:
-        return utility.handle_exception("SMS", error_message)
+        return utility.handle_exception("SMS", str(error_message))
 
 
 # Endpoint to Delete All Pushbullet Notifications
@@ -149,7 +149,7 @@ def pushbullet_clear():
         else:
             return "Unauthorized User", 401
     except Exception as error_message:
-        return utility.handle_exception("Pushbullet Delete", error_message)
+        return utility.handle_exception("Pushbullet Delete", str(error_message))
 
 
 # Endpoint to send contact form data to Pushbullet and Firebase Firestore
@@ -161,7 +161,7 @@ def form():
         firebase.upload_form(form_data)
         return "Form sent"
     except Exception as error_message:
-        return utility.handle_exception("Contact Form Data", error_message)
+        return utility.handle_exception("Contact Form Data", str(error_message))
 
 
 # CI with GitHub & PythonAnywhere
@@ -189,11 +189,16 @@ def webhook():
                 return json.dumps({'msg': 'Not master; ignoring'})
         repo.git.reset('--hard')
         origin = repo.remotes.origin
-        origin.pull(branch)
-        file_store.write(branch + "," + str(payload['after']))
-        return 'Updated PythonAnywhere successfully with branch: ' + branch
+        try:
+            origin.pull(branch)
+            file_store.write(f'{branch} ,' + str(payload["after"]))
+            return f'Updated PythonAnywhere successfully with branch: {branch}'
+        except Exception:
+            origin.pull('master')
+            file_store.write(f'{branch} ,' + str(payload["after"]))
+            return 'Updated PythonAnywhere successfully with branch: master'
     except Exception as error_message:
-        return utility.handle_exception("Update Server", error_message)
+        return utility.handle_exception("Github Update Server", str(error_message))
 
 
 # Handle Internal Server Errors
@@ -247,6 +252,6 @@ def refresh_buffer(request_time):
             break
 
 
-# # For debugging purposes only
-# if __name__ == "__main__":
-#     app.run(debug=True)
+# For debugging purposes only
+if __name__ == "__main__":
+    app.run(debug=True)
