@@ -84,7 +84,6 @@ def get_ip_address(input_request):
     else:
         return input_request.environ['HTTP_X_FORWARDED_FOR']
 
-
 # Endpoint for Analytics
 # Goals : Push messages via Pushbullet & Add Data to Firestore
 # Request flow : (web) client -> (this) server -> IpInfo API
@@ -115,9 +114,9 @@ def analytics():
                 timer.end())
             return "Sent"
         else:
-            return "Unauthorized User", 401
+            return "Unauthorized User", 401   
     except Exception as error_message:
-        return utility.handle_exception("analytics", str(error_message))
+        return utility.handle_exception("analytics", {error_message})
 
 
 # Endpoint for SMS. Uses Twilio API
@@ -142,7 +141,7 @@ def sms_reply():
             timer.end())
         return "SMS Message Sent"
     except Exception as error_message:
-        return utility.handle_exception("SMS", str(error_message))
+        return utility.handle_exception("SMS", {error_message})
 
 
 # Endpoint to Delete All Pushbullet Notifications
@@ -159,7 +158,7 @@ def pushbullet_clear():
             return "Unauthorized User", 401
     except Exception as error_message:
         return utility.handle_exception(
-            "Pushbullet Delete", str(error_message))
+            "Pushbullet Delete", {error_message})
 
 
 # Endpoint to send contact form data to Pushbullet and Firebase Firestore
@@ -174,7 +173,7 @@ def form():
         return "Form sent"
     except Exception as error_message:
         return utility.handle_exception(
-            "Contact Form Data", str(error_message))
+            "Contact Form Data", {error_message})
 
 
 # CI with GitHub & PythonAnywhere
@@ -212,7 +211,7 @@ def webhook():
             return 'Updated PythonAnywhere successfully with branch: master'
     except Exception as error_message:
         return utility.handle_exception(
-            "Github Update Server", str(error_message))
+            "Github Update Server", {error_message})
 
 
 # Handle Internal Server Errors
@@ -266,6 +265,6 @@ def refresh_buffer(request_time):
             break
 
 
-# # For debugging purposes only
+## For debugging purposes only
 # if __name__ == "__main__":
 #     app.run(debug=True)
