@@ -1,7 +1,8 @@
 ### The following secret keys go in this folder.
 
 > 1.  firebase_keys.json
-Obtain from Google Firebase Console
+>     Obtain from Google Firebase Console
+
 ```
 {
     "type": "",
@@ -41,10 +42,20 @@ Obtain from Google Firebase Console
         "Redirect_address": "YOUR WEBSITE'S ADDRESS",
         "Origin": "YOUR WEBSITE'S ORIGIN ADDRESS",
         "Home_Location" : "HOME ADDRESS"
+    }
+}
+```
+
+> 3.  config.json
+
+```
+{
+    "Rate_Limit": {
+        "Seconds": 30,
+        "Maximum_requests_allowed": 5
     },
-    "Rate_Limit" : {
-        "Seconds" : 60,
-        "Maximum_requests_allowed" : 5
+    "Performance": {
+        "Allowed": 2.0
     }
 }
 ```
