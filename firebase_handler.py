@@ -13,12 +13,25 @@ default_app = initialize_app(cred)
 db = firestore.client()
 
 
-# Sends analytics data to Firebase Firestore
 def upload_analytics(Page, Fingerprint, Ip_address, Time, request_data):
+    """Sends analytics data to Firebase Firestore
+
+    Args:
+        Page (string): The page for which the analytics data is to be stored
+        Fingerprint (string): The fingerprint id of the requester
+        Ip_address (string): The IP address of the requester
+        Time (string): The time when the request was received
+        request_data (string): The request data containing all IP
+                                and other information
+    """
     db.collection(Page).document(Fingerprint).collection(
         f'IP: {Ip_address}').document(Time).set(request_data)
 
 
-# Sends Form data to Firebase Firestore
 def upload_form(data):
+    """Sends Form data to Firebase Firestore
+
+    Args:
+        data (dict): Hashmap containing all form data
+    """
     db.collection("Form").document(data["email"]).set(data)

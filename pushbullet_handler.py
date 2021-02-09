@@ -9,8 +9,12 @@ PBKEY = api_keys["Pushbullet"]["Key"]
 DEVID = api_keys["Pushbullet"]["DeviceID"]
 
 
-# Sends analytics data to Pushbullet API
 def send_analytics(req):
+    """Sends analytics data to Pushbullet API
+
+    Args:
+        req (dict): Hashmap containing request information
+    """
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
         "body": f'Carrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["Ip Address"]}',
@@ -21,8 +25,12 @@ def send_analytics(req):
     requests.post(url, data=json.dumps(content), headers=headers)
 
 
-# Sends Form data to Pushbullet API
 def send_form(formData):
+    """Sends Form data to Pushbullet API
+
+    Args:
+        formData (dict): Hashmap containing form data
+    """
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
         "body": f'Name: {formData["name"]} \nEmail: {formData["email"]} \nAbout: {formData["about"]}  \nMessage: {formData["message"]}',
@@ -33,8 +41,14 @@ def send_form(formData):
     requests.post(url, data=json.dumps(content), headers=headers)
 
 
-# Sends Performance data to Pushbullet API
 def send_performance(name, response_time, allowed):
+    """Sends Performance data to Pushbullet API
+
+    Args:
+        name (string): The name of the endpoint that the alert is raised for
+        response_time (float): The average response time for the alert
+        allowed (float): The allowed response time for the service
+    """
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
         "body": f'The {name} endpoint took an average of : {response_time} to compute \n while the allowed time is : {allowed}',
@@ -45,14 +59,15 @@ def send_performance(name, response_time, allowed):
     requests.post(url, data=json.dumps(content), headers=headers)
 
 
-# Deletes all notifications via Pushbullet API
 def delete():
+    """Deletes all notifications via Pushbullet API"""
     url = "https://api.pushbullet.com/v2/pushes"
     headers = {'Access-Token': PBKEY}
     requests.delete(url, headers=headers)
 
 
 # def list_devices():
+#     """ Lists all Devices registered with Pushbullet Account """
 #     headers = {'Access-Token': PBKEY}
 #     response = requests.get(
 #         'https://api.pushbullet.com/v2/devices',
