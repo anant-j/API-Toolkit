@@ -33,7 +33,7 @@ def seconds_between(left, right):
 def log_error(message):
     time = (datetime.now())
     error_code = shift(str(time.timestamp()), 5)
-    print(f'{error_code} : {message}', file=sys.stderr)
+    print(f'{error_code} : {str(message)}', file=sys.stderr)
     return error_code
 
 
@@ -53,6 +53,6 @@ def shift(text, s):
     return result
 
 
-def handle_exception(caller, error):
-    err_code = log_error(f'({caller}) : {str(error)}')
+def handle_exception(caller, error_message):
+    err_code = log_error(f'({caller}) : {str(error_message)}')
     return f'An Error occurred while processing your request. Error code : {err_code}', 500
