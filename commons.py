@@ -1,8 +1,28 @@
-from urllib.request import urlopen
-from dateutil import tz
-from datetime import datetime
-import time
+import os
 import sys
+import time
+from datetime import datetime
+from urllib.request import urlopen
+
+from dateutil import tz
+
+my_directory = os.path.dirname(os.path.abspath(__file__))
+
+
+# Writes current branch and sha to a file that is displayed by the /git
+# endpoint
+def write(path, content):
+    file = f'{my_directory}/{path}'
+    with open(file, 'w') as filetowrite:
+        filetowrite.write(content)
+
+
+# Reads the contents of the file for the deployed git branch status
+def read(path):
+    file = f'{my_directory}/{path}'
+    # tests/gitstats.txt
+    with open(file, 'r') as filetoread:
+        return filetoread.read()
 
 
 # This is required because not sure where deployment servers are located
@@ -28,6 +48,11 @@ def current_time_from_api():
 # Calculates seconds between two datetime values
 def seconds_between(left, right):
     return (left - right).total_seconds()
+
+
+def handle_exception(caller, error_message):
+    err_code = log_error(f'({caller}) : {error_message})')
+    return f'An Error occurred while processing your request. Error code : {err_code}', 500
 
 
 # Logs Error Message in PythonAnywhere
@@ -57,11 +82,6 @@ def shift(text, s):
         else:
             result += chr((ord(char) + s - 97) % 26 + 97)
     return result
-
-
-def handle_exception(caller, error_message):
-    err_code = log_error(f'({caller}) : {error_message})')
-    return f'An Error occurred while processing your request. Error code : {err_code}', 500
 
 
 class Timer():

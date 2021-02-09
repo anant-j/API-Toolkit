@@ -8,8 +8,7 @@ from flask import Flask, abort, redirect, request, send_from_directory
 from flask_cors import CORS
 from twilio.twiml.messaging_response import MessagingResponse
 
-import common_methods as utility
-import file_handler as file_store
+import commons as utility
 import firebase_handler as firebase
 import github_handler as github
 import pushbullet_handler as pushbullet
@@ -73,7 +72,7 @@ def rate_limit_check():
 # Displays the current deployed branch with SHA for Pytest verification
 @app.route('/git')
 def git_sha():
-    return str(file_store.read())
+    return str(utility.read("tests/gitstats.txt"))
 
 
 # Function : get_ip_address
@@ -205,11 +204,11 @@ def webhook():
         origin = repo.remotes.origin
         try:
             origin.pull(branch)
-            file_store.write(f'{branch} ,' + str(payload["after"]))
+            utility.write("tests/gitstats.txt", f'{branch} ,' + str(payload["after"]))
             return f'Updated PythonAnywhere successfully with branch: {branch}'
         except Exception:
             origin.pull('master')
-            file_store.write(f'{branch} ,' + str(payload["after"]))
+            utility.write("tests/gitstats.txt", f'{branch} ,' + str(payload["after"]))
             return 'Updated PythonAnywhere successfully with branch: master'
     except Exception as error_message:
         return utility.handle_exception(

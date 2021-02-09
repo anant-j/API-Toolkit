@@ -6,7 +6,7 @@ import requests
 from twilio.http.http_client import TwilioHttpClient
 from twilio.rest import Client
 
-import common_methods as utility
+import commons as utility
 import cordinate_converter
 
 proxy_client = TwilioHttpClient()
