@@ -107,10 +107,10 @@ def analytics():
         if request.environ['HTTP_ORIGIN'] == Expected_Origin:
             if rate_limit():
                 return "Rate Limited", 429
-                pushbullet.send_analytics(Request_data)
-                firebase.upload_analytics(
-                    Page, Fingerprint, Ip_address, Time, Request_data)
-                return "Sent"
+            pushbullet.send_analytics(Request_data)
+            firebase.upload_analytics(
+                Page, Fingerprint, Ip_address, Time, Request_data)
+            return "Sent"
         else:
             return "Unauthorized User", 401
     except Exception as error_message:
