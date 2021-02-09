@@ -169,33 +169,36 @@ def form():
 # https://medium.com/@aadibajpai/deploying-to-pythonanywhere-via-github-6f967956e664
 @app.route('/update_server', methods=['POST'])
 def webhook():
-    event = request.headers.get('X-GitHub-Event')
-    # Get payload from GitHub webhook request
-    payload = request.get_json()
-    x_hub_signature = request.headers.get('X-Hub-Signature')
-    # Check if signature is valid
-    if not github.is_valid_signature(x_hub_signature, request.data):
-        abort(401)
-    if event == "ping":
-        return json.dumps({'msg': 'Ping Successful!'})
-    if event != "push":
-        return json.dumps({'msg': "Wrong event type"})
-    repo = git.Repo(my_directory)
-    branch = payload['ref'][11:]
-    # Checking that branch is a non staging deployments
-    if my_directory != "/home/stagingapi/mysite":
-        if branch != 'master':
-            return json.dumps({'msg': 'Not master; ignoring'})
-    repo.git.reset('--hard')
-    origin = repo.remotes.origin
     try:
-        origin.pull(branch)
-        file_store.write(f'{branch} ,' + str(payload["after"]))
-        return f'Updated PythonAnywhere successfully with branch: {branch}'
-    except Exception:
-        origin.pull('master')
-        file_store.write(f'{branch} ,' + str(payload["after"]))
-        return f'Updated PythonAnywhere successfully with branch: master'
+        event = request.headers.get('X-GitHub-Event')
+        # Get payload from GitHub webhook request
+        payload = request.get_json()
+        x_hub_signature = request.headers.get('X-Hub-Signature')
+        # Check if signature is valid
+        if not github.is_valid_signature(x_hub_signature, request.data):
+            abort(401)
+        if event == "ping":
+            return json.dumps({'msg': 'Ping Successful!'})
+        if event != "push":
+            return json.dumps({'msg': "Wrong event type"})
+        repo = git.Repo(my_directory)
+        branch = payload['ref'][11:]
+        # Checking that branch is a non staging deployments
+        if my_directory != "/home/stagingapi/mysite":
+            if branch != 'master':
+                return json.dumps({'msg': 'Not master; ignoring'})
+        repo.git.reset('--hard')
+        origin = repo.remotes.origin
+        try:
+            origin.pull(branch)
+            file_store.write(f'{branch} ,' + str(payload["after"]))
+            return f'Updated PythonAnywhere successfully with branch: {branch}'
+        except Exception:
+            origin.pull('master')
+            file_store.write(f'{branch} ,' + str(payload["after"]))
+            return f'Updated PythonAnywhere successfully with branch: master'
+    except Exception as error_message:
+        return utility.handle_exception("Github Update Server", str(error_message))
 
 
 # Handle Internal Server Errors
