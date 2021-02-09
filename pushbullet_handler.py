@@ -12,10 +12,11 @@ DEVID = api_keys["Pushbullet"]["DeviceID"]
 # Sends analytics data to Pushbullet API
 def send_analytics(req):
     url = 'https://api.pushbullet.com/v2/pushes'
-    content = {"body": f'Carrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["Ip Address"]}',
-               "title": f'Someone from {req["city"]} , {req["country_name"]} visited your Website @ {req["Page"]}',
-               "device_iden": DEVID,
-               "type": "note"}
+    content = {
+        "body": f'Carrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["Ip Address"]}',
+        "title": f'Someone from {req["city"]} , {req["country_name"]} visited your Website @ {req["Page"]}',
+        "device_iden": DEVID,
+        "type": "note"}
     headers = {'Access-Token': PBKEY, 'content-type': 'application/json'}
     requests.post(url, data=json.dumps(content), headers=headers)
 

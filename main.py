@@ -94,6 +94,7 @@ def get_ip_address(input_request):
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def analytics():
     try:
+        timer = utility.Timer()
         Request_data = request.get_json()
         Page = Request_data['Page']
         Time = Request_data['Date & Time']
@@ -110,6 +111,9 @@ def analytics():
             pushbullet.send_analytics(Request_data)
             firebase.upload_analytics(
                 Page, Fingerprint, Ip_address, Time, Request_data)
+            utility.log_request(
+                f"analytics : {Fingerprint} - {Ip_address} - {Request_data}",
+                timer.end())
             return "Sent"
         else:
             return "Unauthorized User", 401
@@ -122,6 +126,7 @@ def analytics():
 @app.route("/sms", methods=["POST"])
 def sms_reply():
     try:
+        timer = utility.Timer()
         # Receive message content
         message_content = request.values.get('Body', None)
         # Receive sender's info
@@ -133,6 +138,9 @@ def sms_reply():
         response = MessagingResponse()
         # Sending SMS
         response.message(message)
+        utility.log_request(
+            f"SMS - From : {contact}, Message : {message_content}, Response : {response}",
+            timer.end())
         return "SMS Message Sent"
     except Exception as error_message:
         return utility.handle_exception("SMS", str(error_message))
@@ -142,26 +150,32 @@ def sms_reply():
 @app.route('/pbdel', methods=['GET'])
 def pushbullet_clear():
     try:
+        timer = utility.Timer()
         AuthCode = request.args.get('auth')
         if AuthCode == Pushbullet_Delete_Secret:
             pushbullet.delete()
+            utility.log_request("Pushbullet Delete", timer.end())
             return "Deleted All Messages on Pushbullet"
         else:
             return "Unauthorized User", 401
     except Exception as error_message:
-        return utility.handle_exception("Pushbullet Delete", str(error_message))
+        return utility.handle_exception(
+            "Pushbullet Delete", str(error_message))
 
 
 # Endpoint to send contact form data to Pushbullet and Firebase Firestore
 @app.route('/form', methods=['POST'])
 def form():
     try:
+        timer = utility.Timer()
         form_data = request.get_json(force=True)
         pushbullet.send_form(form_data)
         firebase.upload_form(form_data)
+        utility.log_request("Form Upload", timer.end())
         return "Form sent"
     except Exception as error_message:
-        return utility.handle_exception("Contact Form Data", str(error_message))
+        return utility.handle_exception(
+            "Contact Form Data", str(error_message))
 
 
 # CI with GitHub & PythonAnywhere
@@ -198,7 +212,8 @@ def webhook():
             file_store.write(f'{branch} ,' + str(payload["after"]))
             return 'Updated PythonAnywhere successfully with branch: master'
     except Exception as error_message:
-        return utility.handle_exception("Github Update Server", str(error_message))
+        return utility.handle_exception(
+            "Github Update Server", str(error_message))
 
 
 # Handle Internal Server Errors
@@ -252,6 +267,6 @@ def refresh_buffer(request_time):
             break
 
 
-# For debugging purposes only
-if __name__ == "__main__":
-    app.run(debug=True)
+# # For debugging purposes only
+# if __name__ == "__main__":
+#     app.run(debug=True)

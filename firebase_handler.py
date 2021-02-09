@@ -15,7 +15,8 @@ db = firestore.client()
 
 # Sends analytics data to Firebase Firestore
 def upload_analytics(Page, Fingerprint, Ip_address, Time, request_data):
-    db.collection(Page).document(Fingerprint).collection(f'IP: {Ip_address}').document(Time).set(request_data)
+    db.collection(Page).document(Fingerprint).collection(
+        f'IP: {Ip_address}').document(Time).set(request_data)
 
 
 # Sends Form data to Firebase Firestore

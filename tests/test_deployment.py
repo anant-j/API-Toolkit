@@ -14,7 +14,8 @@ def test_staging_upload():
     if branch == "master" or branch == "branch":
         assert True
     else:
-        git = requests.get(f'https://api.github.com/repos/anant-j/API-Toolkit/git/refs/heads/{branch}')
+        git = requests.get(
+            f'https://api.github.com/repos/anant-j/API-Toolkit/git/refs/heads/{branch}')
         if git.status_code == 200:
             res = json.loads(git.text)
             sha = str(res["object"]["sha"])
