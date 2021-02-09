@@ -114,7 +114,7 @@ def analytics():
         else:
             return "Unauthorized User", 401
     except Exception as error_message:
-        return utility.handle_exception("analytics", error_message)
+        return utility.handle_exception("analytics", str(error_message))
 
 
 # Endpoint for SMS. Uses Twilio API
@@ -135,7 +135,7 @@ def sms_reply():
         response.message(message)
         return "SMS Message Sent"
     except Exception as error_message:
-        return utility.handle_exception("SMS", error_message)
+        return utility.handle_exception("SMS", str(error_message))
 
 
 # Endpoint to Delete All Pushbullet Notifications
@@ -149,7 +149,7 @@ def pushbullet_clear():
         else:
             return "Unauthorized User", 401
     except Exception as error_message:
-        return utility.handle_exception("Pushbullet Delete", error_message)
+        return utility.handle_exception("Pushbullet Delete", str(error_message))
 
 
 # Endpoint to send contact form data to Pushbullet and Firebase Firestore
@@ -161,7 +161,7 @@ def form():
         firebase.upload_form(form_data)
         return "Form sent"
     except Exception as error_message:
-        return utility.handle_exception("Contact Form Data", error_message)
+        return utility.handle_exception("Contact Form Data", str(error_message))
 
 
 # CI with GitHub & PythonAnywhere
@@ -193,7 +193,7 @@ def webhook():
         file_store.write(f'{branch} , {str(payload["after"])}')
         return f'Updated PythonAnywhere successfully with branch: {branch}'
     except Exception as error_message:
-        return utility.handle_exception("Update Server", error_message)
+        return utility.handle_exception("Update Server", str(error_message))
 
 
 # Handle Internal Server Errors
