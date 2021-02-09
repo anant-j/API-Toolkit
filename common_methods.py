@@ -1,6 +1,7 @@
 from urllib.request import urlopen
 from dateutil import tz
 from datetime import datetime
+import sys
 
 
 # This is required because not sure where deployment servers are located
