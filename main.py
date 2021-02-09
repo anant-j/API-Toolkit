@@ -74,13 +74,15 @@ def rate_limit_check():
 def performance():
     try:
         load_keys()
+        snapshot = Processing_time.copy()
         for key, value in Processing_time.items():
-            average = float('%.2f' % (sum(value)/len(value)))
-            allowed_time = api_keys["Performance"]["Allowed"]
-            Processing_time[key] = []
-            if average >= allowed_time:
-                pushbullet.send_performance(key, average, allowed_time)
-        return ("Done")
+            if len(value) > 0:
+                average = float('%.2f' % (sum(value)/len(value)))
+                allowed_time = api_keys["Performance"]["Allowed"]
+                Processing_time[key] = []
+                if average >= allowed_time:
+                    pushbullet.send_performance(key, average, allowed_time)
+        return (str(snapshot))
     except Exception as error_message:
         return utility.handle_exception("Performance", {error_message})
 
