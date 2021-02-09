@@ -51,8 +51,11 @@ def seconds_between(left, right):
 
 
 def handle_exception(caller, error_message):
-    err_code = log_error(f'({caller}) : {error_message})')
-    return f'An Error occurred while processing your request. Error code : {err_code}', 500
+    try:
+        err_code = log_error(f'({caller}) : {error_message})')
+        return f'An unexpected error occurred while processing your request. Error code : {err_code}', 500
+    except Exception:
+        return 'An unexpected error occurred while processing your request.'
 
 
 # Logs Error Message in PythonAnywhere

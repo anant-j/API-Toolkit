@@ -56,7 +56,7 @@ def send(message_content, contact):
     except Exception as error_message:
         err_code = utility.log_error(
             f'( Twilio SMS Send ) : {str(error_message)}')
-        response = f'An Error occurred while processing your request. Error code : {err_code}'
+        response = f'An unexpected error occurred while processing your request. Error code : {err_code}'
 
     client.messages.create(
         to=contact,

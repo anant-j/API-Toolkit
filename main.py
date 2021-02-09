@@ -84,6 +84,7 @@ def get_ip_address(input_request):
     else:
         return input_request.environ['HTTP_X_FORWARDED_FOR']
 
+
 # Endpoint for Analytics
 # Goals : Push messages via Pushbullet & Add Data to Firestore
 # Request flow : (web) client -> (this) server -> IpInfo API
@@ -114,7 +115,7 @@ def analytics():
                 timer.end())
             return "Sent"
         else:
-            return "Unauthorized User", 401   
+            return "Unauthorized User", 401
     except Exception as error_message:
         return utility.handle_exception("analytics", {error_message})
 
@@ -265,6 +266,6 @@ def refresh_buffer(request_time):
             break
 
 
-## For debugging purposes only
+# # For debugging purposes only
 # if __name__ == "__main__":
 #     app.run(debug=True)
