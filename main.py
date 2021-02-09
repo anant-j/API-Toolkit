@@ -22,7 +22,7 @@ api_keys = {}
 
 
 def load_keys():
-    with open(my_directory + '/secrets/keys.json') as f:
+    with open(f'{my_directory}/secrets/keys.json') as f:
         api_keys.update(json.load(f))
 
 
@@ -87,7 +87,7 @@ def get_ip_address(input_request):
 
 
 # Endpoint for Analytics
-# Goals : Push messages via Pushbullet + Add Data to Firestore
+# Goals : Push messages via Pushbullet & Add Data to Firestore
 # Request flow : (web) client -> (this) server -> IpInfo API
 #                                              -> Pushbullet Notification
 #                                              -> Firebase Firestore
@@ -190,8 +190,8 @@ def webhook():
         repo.git.reset('--hard')
         origin = repo.remotes.origin
         origin.pull(branch)
-        file_store.write(branch + "," + str(payload['after']))
-        return 'Updated PythonAnywhere successfully with branch: ' + branch
+        file_store.write(f'{branch} , {str(payload["after"])}')
+        return f'Updated PythonAnywhere successfully with branch: {branch}'
     except Exception as error_message:
         return utility.handle_exception("Update Server", error_message)
 
@@ -247,6 +247,6 @@ def refresh_buffer(request_time):
             break
 
 
-# # For debugging purposes only
-# if __name__ == "__main__":
-#     app.run(debug=True)
+# For debugging purposes only
+if __name__ == "__main__":
+    app.run(debug=True)

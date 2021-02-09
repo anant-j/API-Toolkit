@@ -26,14 +26,14 @@ def current_time_from_api():
 
 # Calculates seconds between two datetime values
 def seconds_between(left, right):
-    return (left-right).total_seconds()
+    return (left - right).total_seconds()
 
 
 # Logs Error Message in PythonAnywhere
 def log_error(message):
     time = (datetime.now())
     error_code = shift(str(time.timestamp()), 5)
-    print(error_code + " : " + message, file=sys.stderr)
+    print(f'{error_code} : {message}', file=sys.stderr)
     return error_code
 
 
@@ -46,7 +46,7 @@ def shift(text, s):
         # Encrypt uppercase characters in plain text
 
         if (char.isupper()):
-            result += chr((ord(char) + s-65) % 26 + 65)
+            result += chr((ord(char) + s - 65) % 26 + 65)
         # Encrypt lowercase characters in plain text
         else:
             result += chr((ord(char) + s - 97) % 26 + 97)
@@ -54,6 +54,5 @@ def shift(text, s):
 
 
 def handle_exception(caller, error):
-    err_code = log_error("( " + caller + " ) : " + str(error))
-    return "An Error occurred while processing your request. " + \
-        "Error code : " + err_code, 500
+    err_code = log_error(f'({caller}) : {str(error)}')
+    return f'An Error occurred while processing your request. Error code : {err_code}', 500

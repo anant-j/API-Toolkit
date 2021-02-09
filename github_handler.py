@@ -4,7 +4,7 @@ import os
 import json
 
 my_directory = os.path.dirname(os.path.abspath(__file__))
-with open(my_directory + '/secrets/keys.json') as f:
+with open(f'{my_directory}/secrets/keys.json') as f:
     api_keys = json.load(f)
 webhook_key = api_keys['Github_Webhook']
 
