@@ -6,7 +6,7 @@ import requests
 from twilio.http.http_client import TwilioHttpClient
 from twilio.rest import Client
 
-import commons as utility
+import utilities as utility
 import cordinate_converter
 
 proxy_client = TwilioHttpClient()
@@ -26,6 +26,15 @@ client = Client(account_sid, auth_token, http_client=proxy_client)
 
 
 def send(message_content, contact):
+    """ Formulate Twilio Response based on request Content
+
+    Args:
+        message_content (string): The message content from Twilio Request
+        contact (string): Phone Number to which the response should be sent
+
+    Returns:
+        string: response content that was sent to contact
+    """
     try:
         original_message = message_content
         message_content = message_content.lower().strip()
@@ -63,9 +72,18 @@ def send(message_content, contact):
         from_=from_number,
         body=response
     )
+    return response
 
 
 def message_decoder(text):
+    """ Decodes message content by splitting, splicing and stripping text
+
+    Args:
+        text (string): Input text
+
+    Returns:
+        dict : A hashmap containing all key value pairs of decoded text
+    """
     try:
         first_split = text.split("-")
         result = {}
@@ -79,6 +97,11 @@ def message_decoder(text):
 
 
 def balance():
+    """ Account balance for Twilio Account
+
+    Returns:
+        string: A message with the remaining balance for Twilio account
+    """
     response = requests.get(
         f'https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Balance.json',
         auth=(
@@ -89,6 +112,15 @@ def balance():
 
 
 def generate_route(origin, destination=home_location):
+    """Generates a text response with route information by using the TravelTime class
+
+    Args:
+        origin (string): Starting location or co-ordinates.
+        destination (string, optional): Destination location. Defaults to home_location (from storage).
+
+    Returns:
+        string: Response message with travel details.
+    """
     res = ".\n"
     Route = TravelTime(
         origin,
@@ -101,7 +133,15 @@ def generate_route(origin, destination=home_location):
 
 
 class TravelTime:
+    """ Class that uses Google's Distance Matrix API to compute travel details """
+
     def __init__(self, start, end):
+        """Initialize the class
+
+        Args:
+            start (string): Origin address/co-ordinates
+            end (string): Destination address/co-ordinates
+        """
         # URL for Google's Distance Matrix API
         url = "https://maps.googleapis.com/maps/api/distancematrix/json"
         # API key
@@ -131,7 +171,14 @@ class TravelTime:
         self.traffic_time_sec = result['rows'][0]['elements'][0]['duration_in_traffic']['value']
 
 
-# Computes estimated time of arrival
 def eta(start_time, travel_time):
-    # Return date and time with the estimated travel time added
+    """Computes estimated time of arrival
+
+    Args:
+        start_time (time): Time when travelling begins
+        travel_time (time): Estimated duration of travel
+
+    Returns:
+        string:  Date and time message with the estimated travel time added
+    """
     return str(start_time + timedelta(seconds=travel_time))[0:19]

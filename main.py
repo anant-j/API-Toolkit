@@ -6,9 +6,8 @@ import git
 import ipinfo
 from flask import Flask, abort, redirect, request, send_from_directory
 from flask_cors import CORS
-from twilio.twiml.messaging_response import MessagingResponse
 
-import commons as utility
+import utilities as utility
 import firebase_handler as firebase
 import github_handler as github
 import pushbullet_handler as pushbullet
@@ -60,24 +59,38 @@ def favicon():
 
 @app.route('/status')
 def health():
-    """ Health Check Endpoint """
+    """Health Check Endpoint
+
+    Returns:
+        string: Status message confirming the service is functional
+    """
     return "UP"
 
 
 @app.route('/isRateLimited')
 def rate_limit_check():
-    """ Rate Limit Check Endpoint.
-    Dynamically checks if API is rate limited based on request time """
+    """Rate Limit Check Endpoint.
+    Dynamically checks if API is rate limited based on request time
+
+    Returns:
+        string: True/False value based on the Rate Limit status
+    """
     return str(is_rate_limited(utility.current_time()))
 
 
 @app.route('/performance')
 def performance():
     """ Performance Check Endpoint.
+
     Updates the API keys.
     Computes the average time for each key in Processing_time storage map.
     If average is greater than the allowed response time,
-    a Pushbullet notification is sent. """
+    a Pushbullet notification is sent.
+
+    Returns:
+        string: A snapshot of the performance check
+        that was processed by the request
+    """
     try:
         load_keys()
         # Making a local copy of the key before it is cleared
@@ -96,16 +109,25 @@ def performance():
 
 @app.route('/git')
 def git_sha():
-    """ Git Branch check Endpoint
+    """  Git Branch check Endpoint
     Displays the current deployed branch
-    with SHA for Pytest verification """
+    with SHA for Pytest verification
+
+    Returns:
+        string: A message in the format of branch, sha
+    """
     return str(utility.read("tests/gitstats.txt"))
 
 
 def get_ip_address(input_request):
-    """ Definition  : Gets Ip Address from request
-        Input       :  Request (HTTP)
-        Output      : Request's IP Address """
+    """Gets Ip Address from request
+
+    Args:
+        input_request (http request): The request for which the IP Address needs to be retrieved
+
+    Returns:
+        string: Request's IP Address
+    """
     if input_request.environ.get('HTTP_X_FORWARDED_FOR') is None:
         return input_request.environ['REMOTE_ADDR']
     else:
@@ -114,11 +136,15 @@ def get_ip_address(input_request):
 
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
 def analytics():
-    """ Endpoint for Analytics
+    """Endpoint for Analytics
     Goals : Push messages via Pushbullet & Add Data to Firestore
     Request flow : (web) client ->  (this) server   ->  IpInfo API
                                                     -> Pushbullet Notification
-                                                    -> Firebase Firestore """
+                                                    -> Firebase Firestore
+
+    Returns:
+        string: Success/Error Message
+    """
     try:
         timer = utility.Timer()  # Start timer
         Request_data = request.get_json()
@@ -152,25 +178,24 @@ def analytics():
 
 @app.route("/sms", methods=["POST"])
 def sms_reply():
-    """ Goals : Process incoming request and send response via SMS
-    This method/endpoint is expected to be called by Twilio's webhook only"""
+    """Process incoming request and send response via SMS
+    This method/endpoint is expected to be called by Twilio's webhook only
+
+    Returns:
+        string: Success/Error Message
+    """
     try:
         timer = utility.Timer()
         # Receive message content
         message_content = request.values.get('Body', None)
         # Receive sender's info
         contact = request.values.get('From', None)
-        # Formulate response
+        # Send message and assign response
         message = sms.send(message_content, contact)
-        # Starting TwiML response
-        # https://www.twilio.com/docs/sms/tutorials/how-to-receive-and-reply-python
-        response = MessagingResponse()
-        # Sending SMS
-        response.message(message)
         processing_time = timer.end()
         record_performance("sms", processing_time)
         utility.log_request(
-            f"SMS - From : {contact}, Message : {message_content}, Response : {response}",
+            f"SMS - From : {contact}, Message : {message_content}, Response : {message}",
             processing_time)
         return "SMS Message Sent"
     except Exception as error_message:
@@ -179,7 +204,11 @@ def sms_reply():
 
 @app.route('/pbdel', methods=['GET'])
 def pushbullet_clear():
-    """ Goals : Delete All Pushbullet Notifications """
+    """Delete All Pushbullet Notifications
+
+    Returns:
+        string: Success/Error Message
+    """
     try:
         timer = utility.Timer()
         AuthCode = request.args.get('auth')
@@ -198,7 +227,11 @@ def pushbullet_clear():
 
 @app.route('/form', methods=['POST'])
 def form():
-    """ Sends contact form data to Pushbullet and Firebase Firestore """
+    """Sends contact form data to Pushbullet and Firebase Firestore
+
+    Returns:
+        string: Success/Error Message
+    """
     try:
         timer = utility.Timer()
         form_data = request.get_json(force=True)
@@ -268,16 +301,24 @@ def e404(error_message):
 def rate_limit():
     """ In memory rate limiting function (Queue/Buffer based)
     Dynamically loads rate limiting parameters from storage
-    Returns : boolean value (Rate limited - true or fase) """
+
+    Returns:
+        boolean: True/False: Rate Limited
+    """
     request_time = utility.current_time()
     Rate_limit_buffer.append(request_time)
     return is_rate_limited(request_time)
 
 
 def is_rate_limited(request_time):
-    """ Checks if the request is rate limited or not
-        Input   : Request Time (time.time)
-        Returns : boolean value (Rate limited - true or fase) """
+    """Checks if the request is rate limited or not
+
+    Args:
+        request_time (time): Request Time
+
+    Returns:
+        boolean: True/False: Rate Limited
+    """
     # Reload api_key values (dynamic keys)
     load_keys()
     refresh_buffer(request_time)
@@ -290,7 +331,10 @@ def is_rate_limited(request_time):
 
 def refresh_buffer(request_time):
     """ Refreshes buffer by expelling stale requests from buffer
-        Input   : Request Time (time.time) """
+
+    Args:
+        request_time (time): Request Time
+    """
     # For each date time value in buffer
     for value in Rate_limit_buffer:
         # If the time difference between current time and stored time
@@ -307,7 +351,12 @@ def refresh_buffer(request_time):
 
 
 def record_performance(caller, time_taken):
-    """ Adds performance data in global performance storage """
+    """Adds performance data in global performance storage
+
+    Args:
+        caller (string): The caller of the request
+        time_taken (float): The time taken to process the request.
+    """
     if caller not in Processing_time:
         Processing_time[caller] = []
     Processing_time[caller].append(time_taken)
