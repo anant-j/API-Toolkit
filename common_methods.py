@@ -34,7 +34,7 @@ def log_error(message):
     time = (datetime.now())
     error_code = shift(str(time.timestamp()), 5)
     print(f'{error_code} : {str(message)}', file=sys.stderr)
-    return error_code
+    return str(error_code)
 
 
 # https://stackoverflow.com/questions/2490334/simple-way-to-encode-a-string-according-to-a-password#:~:text=To%20encrypt%20or%20decrypt%20messages,encrypted%20token%20are%20bytes%20objects.
@@ -54,5 +54,5 @@ def shift(text, s):
 
 
 def handle_exception(caller, error_message):
-    err_code = log_error(f'({caller}) : {str(error_message)}')
+    err_code = log_error(f'({caller}) : {error_message})')
     return f'An Error occurred while processing your request. Error code : {err_code}', 500
