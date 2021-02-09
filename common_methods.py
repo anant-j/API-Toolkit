@@ -33,7 +33,7 @@ def seconds_between(left, right):
 def log_error(message):
     time = (datetime.now())
     error_code = shift(str(time.timestamp()), 5)
-    print(f'{error_code} : {str(message)}', file=sys.stderr)
+    print(f'{error_code} : '+str(message), file=sys.stderr)
     return str(error_code)
 
 
