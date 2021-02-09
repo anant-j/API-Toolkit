@@ -196,7 +196,7 @@ def webhook():
         except Exception:
             origin.pull('master')
             file_store.write(f'{branch} ,' + str(payload["after"]))
-            return f'Updated PythonAnywhere successfully with branch: master'
+            return 'Updated PythonAnywhere successfully with branch: master'
     except Exception as error_message:
         return utility.handle_exception("Github Update Server", str(error_message))
 

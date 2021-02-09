@@ -19,5 +19,3 @@ def test_staging_upload():
             res = json.loads(git.text)
             sha = str(res["object"]["sha"])
             assert dep_hash == sha, "test failed"
-        else:
-            assert False
