@@ -40,7 +40,9 @@ def send(message_content, contact):
         message_content = message_content.lower().strip()
 
         if any(word in message_content for word in ["about", "usage", "help"]):
-            response = "\nThank you for using this service. \nThis SMS Service will return distance and traffic time without using any data. \nPlease type:\n 1)'From: Origin Location - To: Destination Location' \n2)Coordinates from Compass App \n3)'BALANCE' for remaining balance.\nThank You"
+            response = "\nThank you for using this service. \nThis SMS Service will return distance and traffic time without using any data." + \
+                "\nPlease type:\n 1)'From: Origin Location - To: Destination Location' " + \
+                "\n2)Coordinates from Compass App \n3)'BALANCE' for remaining balance.\nThank You"
 
         elif message_content == "balance":
             response = f'\n{balance()}'
