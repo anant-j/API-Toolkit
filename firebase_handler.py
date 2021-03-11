@@ -24,7 +24,7 @@ def upload_analytics(Page, Country, City, Fingerprint, Ip_address, Time, request
         request_data (string): The request data containing all IP
                                 and other information
     """
-    f_t_combo=f"{Fingerprint}, {Time}"
+    f_t_combo = f"{Fingerprint}, {Time}"
     db.collection(Page).document(Country).collection(City).document(f_t_combo).set(request_data)
 
 
