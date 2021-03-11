@@ -13,7 +13,7 @@ default_app = initialize_app(cred)
 db = firestore.client()
 
 
-def upload_analytics(Page, Fingerprint, Ip_address, Time, request_data):
+def upload_analytics(Page, Country, City, Fingerprint, Ip_address, Time, request_data):
     """Sends analytics data to Firebase Firestore
 
     Args:
@@ -24,7 +24,7 @@ def upload_analytics(Page, Fingerprint, Ip_address, Time, request_data):
         request_data (string): The request data containing all IP
                                 and other information
     """
-    db.collection(Page).document(Fingerprint).collection(
+    db.collection(Page).document(Country).collection(City).document(Fingerprint).collection(
         f'IP: {Ip_address}').document(Time).set(request_data)
 
 
