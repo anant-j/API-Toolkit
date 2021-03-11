@@ -158,7 +158,6 @@ def analytics():
         Ip_address = get_ip_address(request)
         # Using IpInfo Python Library to retrieve IP details
         Ip_details = IP_handler.getDetails(Ip_address)
-        Request_data["Ip Address"] = Ip_address
         Request_data.update(Ip_details.all)
         # Hostname Verification
         if request.environ['HTTP_ORIGIN'] == Expected_Origin:

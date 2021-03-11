@@ -17,7 +17,7 @@ def send_analytics(req, fingerprint):
     """
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
-        "body": f'Carrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["Ip Address"]}\nFingerprint: {fingerprint}',
+        "body": f'Carrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["ip"]}\nFingerprint: {fingerprint}',
         "title": f'Someone from {req["city"]} , {req["country_name"]} visited your Website @ {req["Page"]}',
         "device_iden": DEVID,
         "type": "note"}
