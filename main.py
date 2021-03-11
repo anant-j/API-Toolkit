@@ -165,8 +165,9 @@ def analytics():
                 return "Rate Limited", 429
             if denied(Ip_details.country_name, Ip_address, Fingerprint):
                 firebase.upload_analytics("DENIED", Ip_details.country_name, Ip_details.city, Fingerprint, Ip_address, Time, Request_data)
-                return ("DENIED", 403)
-            pushbullet.send_analytics(Request_data, Fingerprint)
+                return "DENIED", 403
+            if not ignored(Ip_address, Fingerprint):
+                pushbullet.send_analytics(Request_data, Fingerprint)
             firebase.upload_analytics(
                 Page, Ip_details.country_name, Ip_details.city, Fingerprint, Ip_address, Time, Request_data)
             processing_time = timer.end()
@@ -318,6 +319,12 @@ def rate_limit():
 
 def denied(country, ip, fingerprint):
     if (country in configuration["Denied"]["Countries"]) or (ip in configuration["Denied"]["IPs"]) or (fingerprint in configuration["Denied"]["Fingerprints"]):
+        return True
+    return False
+
+
+def ignored(ip, fingerprint):
+    if (ip in configuration["Ignored"]["IPs"]) or (fingerprint in configuration["Ignored"]["Fingerprints"]):
         return True
     return False
 
