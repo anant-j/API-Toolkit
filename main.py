@@ -165,10 +165,11 @@ def analytics():
             if rate_limit():
                 return "Rate Limited", 429
             if denied(Ip_details.country_name, Ip_address, Fingerprint):
+                firebase.upload_analytics("DENIED", Ip_details.country_name, Ip_details.city, Fingerprint, Time, Request_data)
                 return ("DENIED", 403)
             pushbullet.send_analytics(Request_data, Fingerprint)
             firebase.upload_analytics(
-                Page, Fingerprint, Ip_address, Time, Request_data)
+                Page, Ip_details.country_name, Ip_details.city, Fingerprint, Time, Request_data)
             processing_time = timer.end()
             record_performance("analytics",
                                processing_time)  # Record Performance
