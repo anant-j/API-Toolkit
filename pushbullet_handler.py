@@ -9,7 +9,7 @@ PBKEY = api_keys["Pushbullet"]["Key"]
 DEVID = api_keys["Pushbullet"]["DeviceID"]
 
 
-def send_analytics(req):
+def send_analytics(req, fingerprint):
     """Sends analytics data to Pushbullet API
 
     Args:
@@ -17,7 +17,7 @@ def send_analytics(req):
     """
     url = 'https://api.pushbullet.com/v2/pushes'
     content = {
-        "body": f'Carrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["Ip Address"]}',
+        "body": f'Carrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["Ip Address"]}\nFingerprint: {fingerprint}',
         "title": f'Someone from {req["city"]} , {req["country_name"]} visited your Website @ {req["Page"]}',
         "device_iden": DEVID,
         "type": "note"}

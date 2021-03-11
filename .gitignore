@@ -1,4 +1,4 @@
-*.json
+*keys.json
 *.pyc
 .vscode
 .pytest_cache

@@ -164,7 +164,9 @@ def analytics():
         if request.environ['HTTP_ORIGIN'] == Expected_Origin:
             if rate_limit():
                 return "Rate Limited", 429
-            pushbullet.send_analytics(Request_data)
+            if denied(Ip_details.country_name, Ip_address, Fingerprint):
+                return ("DENIED", 403)
+            pushbullet.send_analytics(Request_data, Fingerprint)
             firebase.upload_analytics(
                 Page, Fingerprint, Ip_address, Time, Request_data)
             processing_time = timer.end()
@@ -314,6 +316,12 @@ def rate_limit():
     return is_rate_limited(request_time)
 
 
+def denied(country, ip, fingerprint):
+    if (country in configuration["Denied"]["Countries"]) or (ip in configuration["Denied"]["IPs"]) or (fingerprint in configuration["Denied"]["Fingerprints"]):
+        return True
+    return False
+
+
 def is_rate_limited(request_time):
     """Checks if the request is rate limited or not
 
@@ -367,5 +375,5 @@ def record_performance(caller, time_taken):
 
 
 # # For debugging purposes only
-# if __name__ == "__main__":
-#     app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
