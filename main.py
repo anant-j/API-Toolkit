@@ -140,7 +140,7 @@ def get_ip_address(input_request):
 
 
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
-@limiter.limit(configuration["Rate_Limit"]["Analytics"])
+@limiter.limit(configuration["Rate_Limit"]["Analytics"], deduct_when=lambda response: response.status_code != 200)
 def analytics():
     """Endpoint for Analytics
     Goals : Push messages via Pushbullet & Add Data to Firestore
@@ -155,6 +155,8 @@ def analytics():
         timer = utility.Timer()  # Start timer
         Request_data = request.get_json()
         Page = Request_data['Page']
+        if (Page == "DENIED"):
+            return "Allowed", 200
         Time = Request_data['Date & Time']
         Fingerprint = str(Request_data['Fingerprint Id'])
         Ip_address = get_ip_address(request)
@@ -211,7 +213,7 @@ def sms_reply():
 
 
 @app.route('/pbdel', methods=['GET'])
-@limiter.limit(configuration["Rate_Limit"]["PBDEL"])
+@limiter.limit(configuration["Rate_Limit"]["PBDEL"], deduct_when=lambda response: response.status_code != 200)
 def pushbullet_clear():
     """Delete All Pushbullet Notifications
 
@@ -235,7 +237,7 @@ def pushbullet_clear():
 
 
 @app.route('/form', methods=['POST'])
-@limiter.limit(configuration["Rate_Limit"]["FORM"])
+@limiter.limit(configuration["Rate_Limit"]["FORM"], deduct_when=lambda response: response.status_code != 200)
 def form():
     """Sends contact form data to Pushbullet and Firebase Firestore
 
@@ -307,6 +309,11 @@ def e500(error_message):
 @app.errorhandler(404)
 def e404(error_message):
     return redirect(Redirect_address, code=302)
+
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return "DENIED", 429
 
 
 def denied(country, ip, fingerprint):
