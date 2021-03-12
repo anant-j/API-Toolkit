@@ -13,6 +13,9 @@ import github_handler as github
 import pushbullet_handler as pushbullet
 import sms_handler as sms
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 my_directory = os.path.dirname(os.path.abspath(__file__))
 
 configuration = {}
@@ -35,22 +38,28 @@ Pushbullet_Delete_Secret = api_keys["Pushbullet"]["Delete"]
 Expected_Origin = api_keys["Hosts"]["Origin"]
 IP_access_token = api_keys["IpInfo"]
 IP_handler = ipinfo.getHandler(IP_access_token)
-Rate_limit_buffer = []
 Processing_time = {}  # Stores performance data for each request
 
 # Initialize Flask App
 app = Flask(__name__)
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
 # Enabling Cross Origin Resource Sharing
 cors = CORS(app)
 
 
 # Default API Endpoint
 @app.route('/')
+@limiter.exempt
 def homepage():
     return redirect(Redirect_address, code=302)
 
 
 @app.route('/favicon.ico')
+@limiter.exempt
 def favicon():
     """ Retrieve Favicon """
     return send_from_directory(
@@ -62,6 +71,7 @@ def favicon():
 
 
 @app.route('/status')
+@limiter.exempt
 def health():
     """Health Check Endpoint
 
@@ -71,18 +81,8 @@ def health():
     return "UP"
 
 
-@app.route('/isRateLimited')
-def rate_limit_check():
-    """Rate Limit Check Endpoint.
-    Dynamically checks if API is rate limited based on request time
-
-    Returns:
-        string: True/False value based on the Rate Limit status
-    """
-    return str(is_rate_limited(utility.current_time()))
-
-
 @app.route('/performance')
+@limiter.exempt
 def performance():
     """ Performance Check Endpoint.
 
@@ -112,6 +112,7 @@ def performance():
 
 
 @app.route('/git')
+@limiter.exempt
 def git_sha():
     """  Git Branch check Endpoint
     Displays the current deployed branch
@@ -139,6 +140,7 @@ def get_ip_address(input_request):
 
 
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
+@limiter.limit(configuration["Rate_Limit"]["Analytics"])
 def analytics():
     """Endpoint for Analytics
     Goals : Push messages via Pushbullet & Add Data to Firestore
@@ -161,8 +163,6 @@ def analytics():
         Request_data.update(Ip_details.all)
         # Hostname Verification
         if request.environ['HTTP_ORIGIN'] == Expected_Origin:
-            if rate_limit():
-                return "Rate Limited", 429
             if denied(Ip_details.country_name, Ip_address, Fingerprint):
                 firebase.upload_analytics("DENIED", Ip_details.country_name, Ip_details.city, Fingerprint, Ip_address, Time, Request_data)
                 return "DENIED", 403
@@ -184,6 +184,7 @@ def analytics():
 
 
 @app.route("/sms", methods=["POST"])
+@limiter.limit(configuration["Rate_Limit"]["SMS"])
 def sms_reply():
     """Process incoming request and send response via SMS
     This method/endpoint is expected to be called by Twilio's webhook only
@@ -210,6 +211,7 @@ def sms_reply():
 
 
 @app.route('/pbdel', methods=['GET'])
+@limiter.limit(configuration["Rate_Limit"]["PBDEL"])
 def pushbullet_clear():
     """Delete All Pushbullet Notifications
 
@@ -233,6 +235,7 @@ def pushbullet_clear():
 
 
 @app.route('/form', methods=['POST'])
+@limiter.limit(configuration["Rate_Limit"]["FORM"])
 def form():
     """Sends contact form data to Pushbullet and Firebase Firestore
 
@@ -254,6 +257,7 @@ def form():
 
 
 @app.route('/update_server', methods=['POST'])
+@limiter.exempt
 def webhook():
     """ CI with GitHub & PythonAnywhere
         Author : Aadi Bajpai
@@ -305,18 +309,6 @@ def e404(error_message):
     return redirect(Redirect_address, code=302)
 
 
-def rate_limit():
-    """ In memory rate limiting function (Queue/Buffer based)
-    Dynamically loads rate limiting parameters from storage
-
-    Returns:
-        boolean: True/False: Rate Limited
-    """
-    request_time = utility.current_time()
-    Rate_limit_buffer.append(request_time)
-    return is_rate_limited(request_time)
-
-
 def denied(country, ip, fingerprint):
     if (country in configuration["Denied"]["Countries"]) or (ip in configuration["Denied"]["IPs"]) or (fingerprint in configuration["Denied"]["Fingerprints"]):
         return True
@@ -327,46 +319,6 @@ def ignored(ip, fingerprint):
     if (ip in configuration["Ignored"]["IPs"]) or (fingerprint in configuration["Ignored"]["Fingerprints"]):
         return True
     return False
-
-
-def is_rate_limited(request_time):
-    """Checks if the request is rate limited or not
-
-    Args:
-        request_time (time): Request Time
-
-    Returns:
-        boolean: True/False: Rate Limited
-    """
-    # Reload config values (dynamic config)
-    load_config()
-    refresh_buffer(request_time)
-    max_requests = configuration["Rate_Limit"]["Maximum_requests_allowed"]
-    # If buffer has more requests than allowed, then rateLimit
-    if len(Rate_limit_buffer) > max_requests:
-        return True
-    return False
-
-
-def refresh_buffer(request_time):
-    """ Refreshes buffer by expelling stale requests from buffer
-
-    Args:
-        request_time (time): Request Time
-    """
-    # For each date time value in buffer
-    for value in Rate_limit_buffer:
-        # If the time difference between current time and stored time
-        # is greater than the specified time
-        if utility.seconds_between(request_time,
-                                   value) >= configuration["Rate_Limit"]["Seconds"]:
-            # Expell that value from the buffer
-            Rate_limit_buffer.remove(value)
-        # If the difference for the current value
-        # isn't greater, it will be smaller for the subsequent ones
-        # Therefore, no need to check
-        else:
-            break
 
 
 def record_performance(caller, time_taken):
