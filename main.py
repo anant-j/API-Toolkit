@@ -140,7 +140,7 @@ def get_ip_address(input_request):
 
 
 @app.route('/analytics', methods=['POST'])  # GET requests will be blocked
-@limiter.limit(configuration["Rate_Limit"]["Analytics"], deduct_when=lambda response: response.status_code != 200)
+@limiter.limit(configuration["Rate_Limit"]["Analytics"], deduct_when=lambda response: response.status_code == 200)
 def analytics():
     """Endpoint for Analytics
     Goals : Push messages via Pushbullet & Add Data to Firestore
@@ -213,7 +213,7 @@ def sms_reply():
 
 
 @app.route('/pbdel', methods=['GET'])
-@limiter.limit(configuration["Rate_Limit"]["PBDEL"], deduct_when=lambda response: response.status_code != 200)
+@limiter.limit(configuration["Rate_Limit"]["PBDEL"], deduct_when=lambda response: response.status_code == 200)
 def pushbullet_clear():
     """Delete All Pushbullet Notifications
 
@@ -237,7 +237,7 @@ def pushbullet_clear():
 
 
 @app.route('/form', methods=['POST'])
-@limiter.limit(configuration["Rate_Limit"]["FORM"], deduct_when=lambda response: response.status_code != 200)
+@limiter.limit(configuration["Rate_Limit"]["FORM"], deduct_when=lambda response: response.status_code == 200)
 def form():
     """Sends contact form data to Pushbullet and Firebase Firestore
 
