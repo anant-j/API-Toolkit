@@ -321,6 +321,11 @@ def ignored(ip, fingerprint):
     return False
 
 
+@limiter.request_filter
+def ip_whitelist():
+    return request.remote_addr in configuration["Ignored"]["IPs"]
+
+
 def record_performance(caller, time_taken):
     """Adds performance data in global performance storage
 
