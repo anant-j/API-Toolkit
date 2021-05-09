@@ -15,7 +15,7 @@ def send_analytics(req, fingerprint):
     Args:
         req (dict): Hashmap containing request information
     """
-    content = f'Someone from *{req["city"]} , {req["country_name"]}* visited your Website @ *{req["Page"]}*\nCarrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["ip"]}\nFingerprint: {fingerprint}'
+    content = f'Someone from {req["city"]} , {req["country_name"]} visited your Website @ {req["Page"]} \nCarrier: {req["org"]} \nOS: {req["Operating System"]} \nBrowser: {req["Browser"]} \nDate-Time: {req["Date & Time"]} \nIP: {req["ip"]}\nFingerprint: {fingerprint}'
     push(content)
 
 
@@ -42,5 +42,5 @@ def send_performance(name, response_time, allowed):
 
 
 def push(content):
-    url = f'https://api.telegram.org/{TGKEY}/sendMessage?text={content}&chat_id={DEVID}&parse_mode=MarkdownV2'
+    url = f'https://api.telegram.org/{TGKEY}/sendMessage?text={content}&chat_id={DEVID}'
     requests.post(url)
