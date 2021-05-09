@@ -83,45 +83,9 @@
         ]
       }
     },
-    "/pbdel": {
-      "delete": {
-        "summary": "Deletes all notifications on Pushbullet servers",
-        "description": "Requires secret authentication key to work",
-        "operationId": "",
-        "responses": {
-          "200": {
-            "description": "Success response",
-            "content": {
-              "text/plain; charset=utf-8": {
-                "examples": {
-                  "Success Message": {
-                    "value": "Deleted All Messages on Pushbullet"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized response",
-            "content": {
-              "text/plain; charset=utf-8": {
-                "examples": {
-                  "Error Message": {
-                    "value": "Unauthorized User"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Pushbullet Delete Notifications"
-        ]
-      }
-    },
     "/form": {
       "post": {
-        "summary": "Sends contact form data to Pushbullet and Firebase Firestore",
+        "summary": "Sends contact form data to Telegram and Firebase Firestore",
         "description": "Requires secret authentication key to work",
         "operationId": "",
         "responses": {

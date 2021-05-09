@@ -10,7 +10,9 @@ from flask_cors import CORS
 import utilities as utility
 import firebase_handler as firebase
 import github_handler as github
-import pushbullet_handler as pushbullet
+# Depreciated, using Telegram in place of Pushbullet
+# import pushbullet_handler as pushbullet
+import telegram_handler as telegram
 import sms_handler as sms
 
 from flask_limiter import Limiter
@@ -34,7 +36,6 @@ def load_config():
 
 load_config()  # Load keys when application is started
 Redirect_address = api_keys["Hosts"]["Redirect_address"]
-Pushbullet_Delete_Secret = api_keys["Pushbullet"]["Delete"]
 Expected_Origin = api_keys["Hosts"]["Origin"]
 IP_access_token = api_keys["IpInfo"]
 IP_handler = ipinfo.getHandler(IP_access_token)
@@ -89,7 +90,7 @@ def performance():
     Updates the API keys.
     Computes the average time for each key in Processing_time storage map.
     If average is greater than the allowed response time,
-    a Pushbullet notification is sent.
+    a Telegram notification is sent.
 
     Returns:
         string: A snapshot of the performance check
@@ -105,7 +106,7 @@ def performance():
                 allowed_time = configuration["Performance"]["Allowed"]
                 Processing_time[key] = []  # Clear storage for that key
                 if average >= allowed_time:
-                    pushbullet.send_performance(key, average, allowed_time)
+                    telegram.send_performance(key, average, allowed_time)
         return (str(snapshot))
     except Exception as error_message:
         return utility.handle_exception("Performance", {error_message})
@@ -143,9 +144,9 @@ def get_ip_address(input_request):
 @limiter.limit(configuration["Rate_Limit"]["Analytics"], deduct_when=lambda response: response.status_code == 200)
 def analytics():
     """Endpoint for Analytics
-    Goals : Push messages via Pushbullet & Add Data to Firestore
+    Goals : Push messages via Telegram & Add Data to Firestore
     Request flow : (web) client ->  (this) server   ->  IpInfo API
-                                                    -> Pushbullet Notification
+                                                    -> Telegram Notification
                                                     -> Firebase Firestore
 
     Returns:
@@ -169,7 +170,7 @@ def analytics():
                 firebase.upload_analytics("DENIED", Ip_details.country_name, Ip_details.city, Fingerprint, Ip_address, Time, Request_data)
                 return "DENIED", 403
             if not ignored(Ip_address, Fingerprint):
-                pushbullet.send_analytics(Request_data, Fingerprint)
+                telegram.send_analytics(Request_data, Fingerprint)
             firebase.upload_analytics(
                 Page, Ip_details.country_name, Ip_details.city, Fingerprint, Ip_address, Time, Request_data)
             processing_time = timer.end()
@@ -212,34 +213,10 @@ def sms_reply():
         return utility.handle_exception("SMS", {error_message})
 
 
-@app.route('/pbdel', methods=['GET'])
-@limiter.limit(configuration["Rate_Limit"]["PBDEL"], deduct_when=lambda response: response.status_code == 200)
-def pushbullet_clear():
-    """Delete All Pushbullet Notifications
-
-    Returns:
-        string: Success/Error Message
-    """
-    try:
-        timer = utility.Timer()
-        AuthCode = request.args.get('auth')
-        if AuthCode == Pushbullet_Delete_Secret:
-            pushbullet.delete()
-            processing_time = timer.end()
-            record_performance("pb delete", processing_time)
-            utility.log_request("Pushbullet Delete", processing_time)
-            return "Deleted All Messages on Pushbullet"
-        else:
-            return "Unauthorized User", 401
-    except Exception as error_message:
-        return utility.handle_exception(
-            "Pushbullet Delete", {error_message})
-
-
 @app.route('/form', methods=['POST'])
 @limiter.limit(configuration["Rate_Limit"]["FORM"], deduct_when=lambda response: response.status_code == 200)
 def form():
-    """Sends contact form data to Pushbullet and Firebase Firestore
+    """Sends contact form data to Telegram and Firebase Firestore
 
     Returns:
         string: Success/Error Message
@@ -247,7 +224,7 @@ def form():
     try:
         timer = utility.Timer()
         form_data = request.get_json(force=True)
-        pushbullet.send_form(form_data)
+        telegram.send_form(form_data)
         firebase.upload_form(form_data)
         processing_time = timer.end()
         record_performance("form", processing_time)

@@ -25,12 +25,12 @@ ___
 This API serves two purposes:
 1) Tracks personal website traffic while:</br>
 a) Storing it in Google's Firebase Cloud Firestore Database.</br> 
-b) Sending a Pushbullet notification to my mobile device on each visit.</br>
+b) Sending a Telegram notification to my mobile device on each visit.</br>
 2) Processes an incoming SMS Request from my mobile and then:</br>
 a) Computes traffic times for the input co-ordinates  </br>
 b) Sends back the computed time via SMS to my mobile  </br>
 3) Sends Contact Form to: </br>
-a) Pushbullet Mobile Notification </br>
+a) Telegram Notification </br>
 b) Google's Firebase Cloud Firestore Database. </br> 
 
 ___
@@ -64,7 +64,7 @@ Here are the external APIs used:
 |--|--|
 |***WEB API* & *Forms API***||
 |Google's Firebase Cloud Storage| Storing Web Analytics Data in Cloud Firestore. 
-|Pushbullet API| To send notification to mobile device whenever website is visited.
+|Telegram API| To send notification to mobile device whenever website is visited.
 |***SMS API***||
 |Twilio's API| To receive and send messages via SMS.
 |Google's Distance Matrix API| To compute travel time with traffic for requested co-ordinates.
@@ -80,7 +80,7 @@ ___
 1) When someone visits the website, it consumes **IPAPI's** API via an AJAX call to fetch the Public IP Address as well as some other parameters.
 It also gets a Unique Fingerprint ID (UID) using an external Fingerprinting Script
 2) The website then sends a **POST Request** to **/analytics endpoint** via XMLHttpRequest method. This POST request contains the IP Address, the UID and the other fetched data.
-3) The API Service then checks if the UID is one of my personal devices. If it is not, it calls the Pushbullet API and sends a notification to my phone.
+3) The API Service then checks if the UID is one of my personal devices. If it is not, it calls the Telegram API and sends a notification to my phone.
 4) The API Servcie then sends the collected data to Firebase Firestore Cloud Storage.  
 5) The API returns success or error message. The website has no affect from this transaction.
 ##### Twilio's SMS Service:
@@ -93,7 +93,7 @@ It also gets a Unique Fingerprint ID (UID) using an external Fingerprinting Scri
 1) A website visitor fills the form and clicks send.
 2) A **POST request** is made to my **/form Endpoint**
 3) The API service then decodes the message body in the request received to extract the JSON data.
-4) The service then consumes Pushbullet API and sends a notification to my phone.
+4) The service then consumes Telegram API and sends a notification to my phone.
 5) The API service then calls Google's Firebase service to store the form data in a secure manner.
 
 ![Data flow for both features within the same API](static/API-Toolkit.png)
@@ -166,7 +166,7 @@ It cost me ***$0*** to make this API service.
 Yes I did consumer external APIs, however, all of them are either free or offer a free tier/trial account. 
 - The Hosting at PythonAnywhere was free of cost.
 - Twilio offers a free trial account.
-- Pushbullet is free to use.
+- Telegram is free to use.
 - Google Distance Matric API offers a limited credit each month for fair usage.
 - Google Firebase offers a free and fair usage quota.
 - Uptime Robot was also free to use. 

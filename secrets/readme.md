@@ -27,10 +27,9 @@
 {
     "Google_Distance_Matrix": "FROM GOOGLE CLOUD CONSOLE",
     "Github_Webhook": "FROM GITHUB API TOKENS",
-    "Pushbullet": {
-        "Key": "FROM PUSHBULLET",
-        "DeviceID": "USE list_devices() METHOD",
-        "Delete": "FROM PUSHBULLET"
+    "Telegram": {
+        "Key": "FROM Telegram",
+        "DeviceID": "Chat_Id from Telegram",
     },
     "Twilio": {
         "MY_ACCOUNT_SID": "FROM TWILIO CONSOLE",
