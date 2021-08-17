@@ -224,8 +224,13 @@ def form():
     try:
         timer = utility.Timer()
         form_data = request.get_json(force=True)
-        telegram.send_form(form_data)
-        firebase.upload_form(form_data)
+        parsed_data = {}
+        parsed_data["name"] = str(form_data["name"])
+        parsed_data["email"] = str(form_data["email"])
+        parsed_data["about"] = str(form_data["about"])
+        parsed_data["message"] = str(form_data["message"])
+        telegram.send_form(parsed_data)
+        firebase.upload_form(parsed_data)
         processing_time = timer.end()
         record_performance("form", processing_time)
         utility.log_request("Form Upload", processing_time)
